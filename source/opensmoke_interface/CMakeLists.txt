@@ -75,7 +75,10 @@ link_libraries (${COMPULSORY_LIBRARIES})
 # Targets to compile
 #--------------------------------------------------------------------
 
-pybind11_add_module(${PROJECT_NAME} OpenSMOKEppInterface_py.cpp)
+pybind11_add_module(
+	${PROJECT_NAME}
+	opensmoke_interface/OpenSMOKEppInterface_py.cpp
+)
 
 #target_compile_definitions(${PROJECT_NAME})# PRIVATE VERSION_INFO=${EXAMPLE_VERSION_INFO})
 target_include_directories(${PROJECT_NAME} PRIVATE ${PYBIND11_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR})
