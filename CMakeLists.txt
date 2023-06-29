@@ -14,8 +14,8 @@ set (PYBIND11_PYTHON_VERSION 3.11)
 set (CMAKE_POSITION_INDEPENDENT_CODE ON)
 set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} $ENV{EIGEN_LIBRARY_PATH}/cmake)
 set (CMAKE_COLOR_MAKEFILE ON)
-set (VERSION "0.2.0")
-set (INSTALL_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin" CACHE PATH "Installation directory for executables")
+set (VERSION "0.1.0")
+set (INSTALL_BIN_DIR CACHE PATH "Installation directory for executables")
 #set (MACOSX_DEPLOYMENT_TARGET 12.6)
 
 if( NOT CMAKE_BUILD_TYPE)
@@ -29,7 +29,7 @@ message (STATUS "Compiling in mode: ${CMAKE_BUILD_TYPE}")
 #--------------------------------------------------------------------
 
 # --- Source code for the project
-message (STATUS "CurveMatching source: ${PROJECT_SOURCE_DIR}")
+message (STATUS "cpp_interface source: ${PROJECT_SOURCE_DIR}")
 
 # --- Eigen (Compulsory)
 find_package (Eigen3 REQUIRED)
@@ -46,7 +46,6 @@ message (STATUS "OpenSMOKE++: ${OpenSMOKEpp_INCLUDE_DIR}")
 
 # --- pybind11 (Compulsory)
 find_package(pybind11 REQUIRED)
-message(STATUS "pyBIND11: ${PYBIND11_INCLUDE_DIRS}")
 
 set(COMPULSORY_LIBRARIES ${Boost_LIBRARIES})
 
@@ -77,7 +76,7 @@ link_libraries (${COMPULSORY_LIBRARIES})
 
 pybind11_add_module(
 	${PROJECT_NAME}
-	cpp_interface/OpenSMOKEppInterface_py.cpp
+	cpp_interface/pyOpenSMOKEppInterface.cpp
 )
 
 #target_compile_definitions(${PROJECT_NAME})# PRIVATE VERSION_INFO=${EXAMPLE_VERSION_INFO})
@@ -88,7 +87,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE Eigen3::Eigen)
 # Installing options
 #--------------------------------------------------------------------
 
-#install(TARGETS bspl.sh DESTINATION ${INSTALL_BIN_DIR})
+install(TARGETS ${PROJECT_NAME} DESTINATION ${INSTALL_BIN_DIR})
 
 #--------------------------------------------------------------------
 # Testing options

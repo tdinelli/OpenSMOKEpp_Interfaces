@@ -4,7 +4,7 @@
             "name": "Mac di Tito",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/source/**",
+                "${workspaceFolder}/cpp_interface/**",
                 "/Users/tdinelli/Documents/GitHub/OpenSMOKEpp/source",
                 "/Users/tdinelli/NumericalLibraries/boost/boost-1.79-gcc-12/include",
                 "/Users/tdinelli/NumericalLibraries/eigen/eigen-3.4.0",

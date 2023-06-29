@@ -2,7 +2,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "ideal_reactors/batch/OpenSMOKE_BatchReactor.h"
+#include "ideal_reactors/batch/pyBatchReactor.h"
 #include "OpenSMOKEMaps.h"
 
 namespace py = pybind11;
@@ -47,11 +47,10 @@ PYBIND11_MODULE(OpenSMOKEppInterface, m)
 	.def("SetEnvironmentTemperature", &BatchReactor::SetEnvironmentTemperature, py::call_guard<py::gil_scoped_release>())
 	.def("SetType", &BatchReactor::SetType, py::call_guard<py::gil_scoped_release>())
 	.def("Solve", &BatchReactor::Solve, py::call_guard<py::gil_scoped_release>())
-	.def_property_readonly("tempo", &BatchReactor::GetTempo)
-	.def_property_readonly("temperature", &BatchReactor::GetTemperatura)
-	.def_property_readonly("pressure", &BatchReactor::GetPressione)
-	.def("mole_fractions", &BatchReactor::GetMoles)
+	.def_property_readonly("time", &BatchReactor::GetTime, py::call_guard<py::gil_scoped_release>())
+	.def_property_readonly("temperature", &BatchReactor::GetTemperature, py::call_guard<py::gil_scoped_release>())
+	.def_property_readonly("pressure", &BatchReactor::GetPressure, py::call_guard<py::gil_scoped_release>())
+	.def("mole_fractions", &BatchReactor::GetMoleFractions, py::call_guard<py::gil_scoped_release>())
+	.def("mass_fractions", &BatchReactor::GetMassFractions, py::call_guard<py::gil_scoped_release>())
 	;
-	// .def("masses", &BatchReactor::GetMasses)
-
 }

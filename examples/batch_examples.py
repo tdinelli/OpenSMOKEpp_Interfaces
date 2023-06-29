@@ -1,25 +1,26 @@
 import sys
-sys.path.append('/Users/tdinelli/Documents/GitHub/lumpingSMOKE/source')
+sys.path.append('/Users/tdinelli/Documents/GitHub/pyOpenSMOKEpp/pyOpenSMOKEpp')
 from batch import OS_BatchReactor
 import matplotlib.pyplot as plt
-import pandas as pd
 
-reactor = OS_BatchReactor("/Users/tdinelli/Documents/GitHub/OpenSMOKEppTutorials/examples/OpenSMOKEpp_BatchReactor/01a-isothermal-constantvolume/kinetics")
+kinetic = "/Users/tdinelli/Documents/GitHub/OpenSMOKEppTutorials/examples/OpenSMOKEpp_BatchReactor/01a-isothermal-constantvolume/kinetics"
 
-reactor.Type('Isothermal-ConstantVolume')
-reactor.Temperature(1000, 'K')
-reactor.Pressure(101325, 'Pa')
-reactor.EndTime(0.01, 's')
+reactor = OS_BatchReactor(kinetic_folder=kinetic)
+
+reactor.Type = 'Isothermal-ConstantVolume'
+reactor.temperature = (1000, 'K')
+reactor.pressure = (101325, 'Pa')
+reactor.EndTime = (0.01, 's')
 
 composition = {'type': 'MoleFractions',
-               'names': ['H2', 'O2', 'N2'], 
+               'species': ['H2', 'O2', 'N2'], 
                'values': [0.3, 0.1, 0.6]
             }
 
-reactor.InitialComposition(composition)
+reactor.initial_composition = composition
 reactor.solve()
 
-t = reactor.tempo()
+t = reactor.time
 molefrac = reactor.mole_fractions(['OH', 'H2','N2'])
 
 plt.plot(t, molefrac[0], '--')

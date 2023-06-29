@@ -34,7 +34,6 @@ void BatchReactor::SetPressure(double value, std::string units)
 	else if (units == "bar")	P_Pa = value*1.e5;
 	else if (units == "atm")	P_Pa = value*101325.;
 	else OpenSMOKE::FatalErrorMessage("Unknown pressure units");
-
 	state_variables++;
 	pressure_assigned = true;
 }
@@ -50,7 +49,6 @@ void BatchReactor::SetDensity(double value, std::string units)
 
 void BatchReactor::SetInitialComposition(std::string initial_composition_type, std::vector<std::string> names, std::vector<double> values)
 {
-	CeckStatusOfGasMixture();
 	if (initial_composition_type == "MoleFractions")
 	{
 		const double sum =std::accumulate(values.begin(),values.end(),0.);
@@ -97,8 +95,6 @@ void BatchReactor::SetInitialComposition(std::string initial_composition_type, s
 		std::string fuel_composition_type,std::vector<std::string> names_fuel, std::vector<double> values_fuel,
 		std::string oxidizer_composition_type, std::vector<std::string> names_oxidizer, std::vector<double> values_oxidizer)
 {
-	CeckStatusOfGasMixture();
-
 	if (initial_composition_type == "EquivalenceRatio")
 	{
 		if (equivalence_ratios.size() != 1)
@@ -133,12 +129,11 @@ void BatchReactor::SetInitialComposition(std::string initial_composition_type, s
 		}
 		else if (fuel_composition_type == "FuelMoles")
 		{
+			// TODO
 			// dictionary.ReadOption("@FuelMoles", names_fuel, values_fuel);
 		}
 		else if (fuel_composition_type == "FuelMasses")
 		{
-			// dictionary.ReadOption("@FuelMasses", names_fuel, values_fuel);
-
 			OpenSMOKE::OpenSMOKEVectorDouble omega_fuel(thermodynamicsMapXML->NumberOfSpecies());
 			for(unsigned int i=0;i<names_fuel.size();i++)
 				omega_fuel[thermodynamicsMapXML->IndexOfSpecies(names_fuel[i])] = values_fuel[i];
@@ -181,6 +176,7 @@ void BatchReactor::SetInitialComposition(std::string initial_composition_type, s
 		}
 		else if (oxidizer_composition_type == "OxidizerMoles")
 		{
+			// TODO
 			// dictionary.ReadOption("@OxidizerMoles", names_oxidizer, values_oxidizer);
 		}
 		else if (oxidizer_composition_type == "OxidizerMasses")
@@ -288,8 +284,9 @@ void BatchReactor::SetType(std::string value)
 	else OpenSMOKE::FatalErrorMessage("Unknown batch reactor type: " + value);
 }
 
-	void BatchReactor::Solve()
-	{
+void BatchReactor::Solve()
+{
+	CeckStatusOfGasMixture();
 		// Solve the ODE system: NonIsothermal, Constant Volume
 		if (type == OpenSMOKE::BATCH_REACTOR_NONISOTHERMAL_CONSTANTV)
 		{
@@ -315,13 +312,15 @@ void BatchReactor::SetType(std::string value)
 			OpenSMOKE::BatchReactor_Isothermal_ConstantVolume batch(*thermodynamicsMapXML, *kineticsMapXML,
 				*ode_parameters, *batch_options, *onTheFlyROPA, *onTheFlyCEMA, *on_the_fly_post_processing, 
 				*idt, *polimi_soot, volume, T, P_Pa, omega);
-			
+			batch.SaveResults(true);
 			batch.Solve(tStart, tEnd);
-			tempo = batch.time();
-			temperatura = batch.temperature();
-			pressione = batch.pressure();
-			frazioni_molari = batch.molefractions();
-			frazioni_massive = batch.mass_fractions();
+
+			// Getter
+			time_vector_ = batch.time();
+			temperature_vector_ = batch.final_temperature();
+			pressure_vector_ = batch.final_pressure();
+			mole_fractions_ = batch.mole_fractions();
+			mass_fractions_ = batch.mass_fractions();
 		}
 
 		// Solve the ODE system: NonIsothermal, Constant Pressure
@@ -342,5 +341,5 @@ void BatchReactor::SetType(std::string value)
 				*idt, *polimi_soot, volume, T, P_Pa, omega);
 			batch.Solve(tStart, tEnd);
 		}
-	}
+}
 	

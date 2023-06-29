@@ -22,22 +22,6 @@ class BatchReactor
 	public:
 
 	BatchReactor(std::string path_kinetics);
-	
-	unsigned int max_number_allowed_species = 100000;
-	OpenSMOKE::ThermodynamicsMap_CHEMKIN*	thermodynamicsMapXML;
-	OpenSMOKE::KineticsMap_CHEMKIN*			kineticsMapXML;
-
-	double T, P_Pa;
-	OpenSMOKE::OpenSMOKEVectorDouble omega;
-	double tEnd;
-    double tStart = 0.; // default 0
-	double volume = 1.; // default value [1 m3]
-	OpenSMOKE::BatchReactor_Type type;
-
-	unsigned int state_variables = 0;
-	bool temperature_assigned = false;
-	bool pressure_assigned = false;
-	bool density_assigned = false;
 		
 	// Temperature
 	void SetTemperature(double value, std::string units);
@@ -45,15 +29,7 @@ class BatchReactor
 	// Pressure
 	void SetPressure(double value, std::string units);
 
-	// Density
-	double rho;
 	void SetDensity(double value, std::string units);
-
-	void CeckStatusOfGasMixture() 
-	{
-		if (state_variables != 2)
-			OpenSMOKE::FatalErrorMessage("The status of a gas mixture requires any 2 (and only 2) among: @Temperature, @Pressure and @Density");
-	}
 	
 	// Composition
 	void SetInitialComposition(std::string initial_composition_type, std::vector<std::string> names, std::vector<double> values);
@@ -72,17 +48,13 @@ class BatchReactor
 
 	// Read volume
 	void SetVolume(double value, std::string units);
-        
-	// Read exchange area
-	double exchange_area = 0.;
+
 	void SetExchangeArea(double value, std::string units);
 
 	// Read global thermal exchange coefficient
-	double global_thermal_exchange_coefficient = 0.;
 	void Set_global_thermal_exchange_coefficient(double value, std::string units);
 
 	// Environment temperature
-	double T_environment = T;
 	void SetEnvironmentTemperature(double value, std::string units);
 
 	//Type
@@ -113,38 +85,70 @@ class BatchReactor
 
 	// Polimi soot
 	OpenSMOKE::PolimiSoot_Analyzer* polimi_soot = new OpenSMOKE::PolimiSoot_Analyzer(thermodynamicsMapXML);
-
-	// ------------------------------------------------------------------------------------------- //
-	//                              Non parametric analysis                                        //
-	// ------------------------------------------------------------------------------------------- //
-	std::vector<double> tempo;
-	std::vector<double> temperatura;
-	std::vector<double> pressione;
-	std::vector<OpenSMOKE::OpenSMOKEVectorDouble> frazioni_molari;
-	std::vector<OpenSMOKE::OpenSMOKEVectorDouble> frazioni_massive;
 	
 	void Solve();
 
-	const std::vector<double>& GetTempo() const {return tempo;};
-	const std::vector<double>& GetTemperatura() const {return temperatura;};
-	const std::vector<double>& GetPressione() const {return pressione;};
+	const std::vector<double>& GetTime() const {return time_vector_;};
+	const std::vector<double>& GetTemperature() const {return temperature_vector_;};
+	const std::vector<double>& GetPressure() const {return pressure_vector_;};
 
-	std::vector<std::vector<double>> GetMoles(std::vector<std::string> species_names)
+	std::vector<std::vector<double>> GetMoleFractions(std::vector<std::string> species_names)
 	{
-		std::vector<std::vector<double>> selected_molefractions(species_names.size(), std::vector<double>(tempo.size()));
+		std::vector<std::vector<double>> selected_molefractions(species_names.size(), std::vector<double>(time_vector_.size()));
 		for(unsigned int i = 0; i < species_names.size(); i++)
 		{
 			unsigned int j = thermodynamicsMapXML->IndexOfSpecies(species_names[i]);
-			for(unsigned int k = 0; k < tempo.size(); k++)
-				selected_molefractions[i][k] = frazioni_molari[k][j];
+			for(unsigned int k = 0; k < time_vector_.size(); k++)
+				selected_molefractions[i][k] = mole_fractions_[k][j];
 		}
 		return selected_molefractions;
 	}
 	
-	//std::vector<double> GetMasses(std::vector<std::string> species_names)
-	//{
-	//	return frazioni_massive;
-	//}
+	std::vector<std::vector<double>> GetMassFractions(std::vector<std::string> species_names)
+	{
+		std::vector<std::vector<double>> selected_massfractions(species_names.size(), std::vector<double>(time_vector_.size()));
+		for(unsigned int i = 0; i < species_names.size(); i++)
+		{
+			unsigned int j = thermodynamicsMapXML->IndexOfSpecies(species_names[i]);
+			for(unsigned int k = 0; k < time_vector_.size(); k++)
+				selected_massfractions[i][k] = mass_fractions_[k][j];
+		}
+		return selected_massfractions;
+	}
+
+	private:
+	
+	OpenSMOKE::ThermodynamicsMap_CHEMKIN*	thermodynamicsMapXML;
+	OpenSMOKE::KineticsMap_CHEMKIN*			kineticsMapXML;
+
+	double T, P_Pa;
+	OpenSMOKE::OpenSMOKEVectorDouble omega;
+	double tEnd;
+    double tStart = 0.; // default 0
+	double volume = 1.; // default value [1 m3]
+	OpenSMOKE::BatchReactor_Type type;
+
+	unsigned int state_variables = 0;
+	bool temperature_assigned = false;
+	bool pressure_assigned = false;
+	bool density_assigned = false;
+
+	double rho;
+	double exchange_area = 0.;
+	double global_thermal_exchange_coefficient = 0.;
+	double T_environment = T;
+
+	std::vector<double> time_vector_;
+	std::vector<double> temperature_vector_;
+	std::vector<double> pressure_vector_;
+	std::vector<OpenSMOKE::OpenSMOKEVectorDouble> mole_fractions_;
+	std::vector<OpenSMOKE::OpenSMOKEVectorDouble> mass_fractions_;
+
+	void CeckStatusOfGasMixture()
+	{
+		if (state_variables != 2)
+			OpenSMOKE::FatalErrorMessage("The status of a gas mixture requires any 2 (and only 2) among: Temperature, Pressure and Density");
+	}
 };
 
-#include "OpenSMOKE_BatchReactor.hpp"
+#include "pyBatchReactor.hpp"
