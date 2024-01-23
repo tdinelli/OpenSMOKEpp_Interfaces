@@ -1,8 +1,12 @@
-BatchReactor::BatchReactor(std::string path_kinetics)
+BatchReactor::BatchReactor(std::string path_kinetics, bool verbose)
 {
 	boost::filesystem::path path_kinetics_ = path_kinetics;
 
-	//std::cout.setstate(std::ios_base::failbit);
+	verbose_ = verbose;
+	if(!verbose_)
+		std::cout.setstate(std::ios_base::failbit);
+
+	OpenSMOKE::OpenSMOKE_logo("OpenSMOKEpp_BatchReactor", "Alberto Cuoci (alberto.cuoci@polimi.it)");
 	{
 		// Read thermodynamics and kinetics maps
 		boost::property_tree::ptree ptree;
@@ -15,7 +19,6 @@ BatchReactor::BatchReactor(std::string path_kinetics)
 
 		std::cout << "Time to read XML file: " << tEnd - tStart << std::endl;
 	}
-	std::cout.clear();
 }
 
 void BatchReactor::SetTemperature(double value, std::string units)
@@ -284,62 +287,72 @@ void BatchReactor::SetType(std::string value)
 	else OpenSMOKE::FatalErrorMessage("Unknown batch reactor type: " + value);
 }
 
+void BatchReactor::SetBatchOptions(std::string output_path)
+{
+	batch_options->SetOutputPath(output_path);
+}
+
 void BatchReactor::Solve()
 {
+	if(!verbose_)
+		std::cout.setstate(std::ios_base::failbit);
+	
 	CeckStatusOfGasMixture();
-		// Solve the ODE system: NonIsothermal, Constant Volume
-		if (type == OpenSMOKE::BATCH_REACTOR_NONISOTHERMAL_CONSTANTV)
-		{
-			OpenSMOKE::BatchReactor_NonIsothermal_ConstantVolume batch(*thermodynamicsMapXML, *kineticsMapXML,
-				*ode_parameters, *batch_options, *onTheFlyROPA, *onTheFlyCEMA, *on_the_fly_post_processing, 
-				*idt, *polimi_soot, volume, T, P_Pa, omega, global_thermal_exchange_coefficient, 
-				exchange_area, T_environment
-			);
+	// Solve the ODE system: NonIsothermal, Constant Volume
+	if (type == OpenSMOKE::BATCH_REACTOR_NONISOTHERMAL_CONSTANTV)
+	{
+		OpenSMOKE::BatchReactor_NonIsothermal_ConstantVolume batch(*thermodynamicsMapXML, *kineticsMapXML,
+			*ode_parameters, *batch_options, *onTheFlyROPA, *onTheFlyCEMA, *on_the_fly_post_processing, 
+			*idt, *polimi_soot, volume, T, P_Pa, omega, global_thermal_exchange_coefficient, 
+			exchange_area, T_environment
+		);
 
-			batch.Solve(tStart, tEnd);
-		}
+		batch.Solve(tStart, tEnd);
+	}
 
-		// Solve the ODE system: NonIsothermal, Volume assigned according to a specified law
-		if (type == OpenSMOKE::BATCH_REACTOR_NONISOTHERMAL_USERDEFINEDVOLUME)
-		{
-			std::cout << "No USER DEFINED VOLUME" << std::endl;
-			exit(-1);
-		}
+	// Solve the ODE system: NonIsothermal, Volume assigned according to a specified law
+	if (type == OpenSMOKE::BATCH_REACTOR_NONISOTHERMAL_USERDEFINEDVOLUME)
+	{
+		std::cout << "No USER DEFINED VOLUME" << std::endl;
+		exit(-1);
+	}
 
-		// Solve the ODE system: Isothermal, Constant Volume
-		if (type == OpenSMOKE::BATCH_REACTOR_ISOTHERMAL_CONSTANTV)
-		{
-			OpenSMOKE::BatchReactor_Isothermal_ConstantVolume batch(*thermodynamicsMapXML, *kineticsMapXML,
-				*ode_parameters, *batch_options, *onTheFlyROPA, *onTheFlyCEMA, *on_the_fly_post_processing, 
-				*idt, *polimi_soot, volume, T, P_Pa, omega);
-			batch.SaveResults(true);
-			batch.Solve(tStart, tEnd);
+	// Solve the ODE system: Isothermal, Constant Volume
+	if (type == OpenSMOKE::BATCH_REACTOR_ISOTHERMAL_CONSTANTV)
+	{
+		OpenSMOKE::BatchReactor_Isothermal_ConstantVolume batch(*thermodynamicsMapXML, *kineticsMapXML,
+			*ode_parameters, *batch_options, *onTheFlyROPA, *onTheFlyCEMA, *on_the_fly_post_processing, 
+			*idt, *polimi_soot, volume, T, P_Pa, omega);
+		batch.SaveResults(true);
+		batch.Solve(tStart, tEnd);
 
-			// Getter
-			time_vector_ = batch.time();
-			temperature_vector_ = batch.final_temperature();
-			pressure_vector_ = batch.final_pressure();
-			mole_fractions_ = batch.mole_fractions();
-			mass_fractions_ = batch.mass_fractions();
-		}
+		// Getter
+		time_vector_ = batch.time();
+		temperature_vector_ = batch.final_temperature();
+		pressure_vector_ = batch.final_pressure();
+		mole_fractions_ = batch.mole_fractions();
+		mass_fractions_ = batch.mass_fractions();
+	}
 
-		// Solve the ODE system: NonIsothermal, Constant Pressure
-		if (type == OpenSMOKE::BATCH_REACTOR_NONISOTHERMAL_CONSTANTP)
-		{
-			OpenSMOKE::BatchReactor_NonIsothermal_ConstantPressure batch(*thermodynamicsMapXML, *kineticsMapXML,
-				*ode_parameters, *batch_options, *onTheFlyROPA, *onTheFlyCEMA, *on_the_fly_post_processing, 
-				*idt, *polimi_soot, volume, T, P_Pa, omega,
-				global_thermal_exchange_coefficient, exchange_area, T_environment);
-			batch.Solve(tStart, tEnd);
-		}
+	// Solve the ODE system: NonIsothermal, Constant Pressure
+	if (type == OpenSMOKE::BATCH_REACTOR_NONISOTHERMAL_CONSTANTP)
+	{
+		OpenSMOKE::BatchReactor_NonIsothermal_ConstantPressure batch(*thermodynamicsMapXML, *kineticsMapXML,
+			*ode_parameters, *batch_options, *onTheFlyROPA, *onTheFlyCEMA, *on_the_fly_post_processing, 
+			*idt, *polimi_soot, volume, T, P_Pa, omega,
+			global_thermal_exchange_coefficient, exchange_area, T_environment);
+		batch.Solve(tStart, tEnd);
+	}
 
-		// Solve the ODE system: Isothermal, Constant Pressure
-		if (type == OpenSMOKE::BATCH_REACTOR_ISOTHERMAL_CONSTANTP)
-		{
-			OpenSMOKE::BatchReactor_Isothermal_ConstantPressure batch(*thermodynamicsMapXML, *kineticsMapXML,
-				*ode_parameters, *batch_options, *onTheFlyROPA, *onTheFlyCEMA, *on_the_fly_post_processing, 
-				*idt, *polimi_soot, volume, T, P_Pa, omega);
-			batch.Solve(tStart, tEnd);
-		}
+	// Solve the ODE system: Isothermal, Constant Pressure
+	if (type == OpenSMOKE::BATCH_REACTOR_ISOTHERMAL_CONSTANTP)
+	{
+		OpenSMOKE::BatchReactor_Isothermal_ConstantPressure batch(*thermodynamicsMapXML, *kineticsMapXML,
+			*ode_parameters, *batch_options, *onTheFlyROPA, *onTheFlyCEMA, *on_the_fly_post_processing, 
+			*idt, *polimi_soot, volume, T, P_Pa, omega);
+		batch.Solve(tStart, tEnd);
+	}
+
+	OpenSMOKE::OpenSMOKE_logo("OpenSMOKEpp_BatchReactor", "Alberto Cuoci (alberto.cuoci@polimi.it)");
 }
 	

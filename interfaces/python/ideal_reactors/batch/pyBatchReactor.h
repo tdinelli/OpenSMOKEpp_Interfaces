@@ -21,7 +21,7 @@ class BatchReactor
 {
 	public:
 
-	BatchReactor(std::string path_kinetics);
+	BatchReactor(std::string path_kinetics, bool verbose);
 		
 	// Temperature
 	void SetTemperature(double value, std::string units);
@@ -59,6 +59,9 @@ class BatchReactor
 
 	//Type
 	void SetType(std::string value);
+
+	// Set Batch Output options
+	void SetBatchOptions(std::string output_path);
 
 	// Options
 	OpenSMOKE::BatchReactor_Options* batch_options = new OpenSMOKE::BatchReactor_Options();
@@ -138,6 +141,7 @@ class BatchReactor
 	double global_thermal_exchange_coefficient = 0.;
 	double T_environment = T;
 
+	bool verbose_ = true;
 	std::vector<double> time_vector_;
 	std::vector<double> temperature_vector_;
 	std::vector<double> pressure_vector_;
