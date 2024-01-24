@@ -6,7 +6,6 @@
 
 namespace py = pybind11;
 
-constexpr auto byref = py::return_value_policy::reference_internal;
 constexpr auto call_guard = py::call_guard<py::gil_scoped_release>();
 
 PYBIND11_MODULE(pyOpenSMOKE, m) {
