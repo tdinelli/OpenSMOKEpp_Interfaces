@@ -17,6 +17,7 @@ target_link_libraries(${PROJECT_NAME}
         Boost::chrono
         Boost::serialization
         OpenSMOKEMaps
+        BatchReactor
 )
 
 target_include_directories(${PROJECT_NAME}

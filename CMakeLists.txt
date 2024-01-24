@@ -44,11 +44,21 @@ find_package(Boost
         serialization
 )
 
+# --- pybind11 (Compulsory)
+find_package(pybind11 REQUIRED)
+
 # --- OpenSMOKE++ (Compulsory)
 find_package(OpenSMOKEpp REQUIRED)
 
-# --- pybind11 (Compulsory)
-find_package(pybind11 REQUIRED)
+# --- OpenSMOKE++ Solvers (Compulsory)
+find_package(OpenSMOKEppSolvers REQUIRED)
+
+# --- OpenBLAS library (Compulsory)
+set (BLA_VENDOR OpenBLAS)
+set (BLA_STATIC ON)
+find_package(BLAS REQUIRED)
+# list(APPEND LINEAR_ALGEBRA_INCLUDE  $ENV{BLAS_ROOT}/include)
+# list(APPEND LINEAR_ALGEBRA_LIB ${BLAS_LIBRARIES})
 
 # --------------------------------------------------------------------
 # Sub Modules auto-update (Maybe in the future we will use submodules)
