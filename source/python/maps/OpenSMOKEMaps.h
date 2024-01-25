@@ -1,14 +1,16 @@
 #pragma once
 
+// clang-format off
 // OpenSMOKE include
 #include <OpenSMOKEpp>
 #include <maps/Maps_CHEMKIN>
 
-// Standard include
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+// Standard include
 #include <string>
+// clang-format on
 
 namespace py = pybind11;
 

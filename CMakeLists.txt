@@ -70,7 +70,7 @@ find_package(BLAS REQUIRED)
 # Subdirectories
 # --------------------------------------------------------------------
 
-add_subdirectory(interfaces)
+add_subdirectory(source)
 
 # --------------------------------------------------------------------
 # Installing options

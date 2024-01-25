@@ -23,6 +23,7 @@
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <pybind11/eigen.h>
 // clang-format on
 
 namespace py = pybind11;
@@ -91,7 +92,7 @@ class BatchReactor {
   const void SetType(const std::string& value);
 
   // Set Batch Output options
-  const void SetBatchOptions();
+  const void SetBatchOptions(const bool& verbose);
 
   // Set Ode Options
   const void SetOdeOptions();
@@ -124,11 +125,20 @@ class BatchReactor {
   // }
 
   // Getter functions
+  const double& Tf() const { return Tf_; };
+
+  const double& Pf() const { return Pf_; };
+
+  const Eigen::VectorXd& omegaf() const { return omegaf_; };
+
+  const Eigen::VectorXd& xf() const { return xf_; };
 
   // Python Wrapper
   const static void BatchReactor_wrapper(py::module_&);
 
  private:
+  const void SetAdditionalOptions();
+
   OpenSMOKE::ThermodynamicsMap_CHEMKIN* thermodynamicsMapXML_;
 
   OpenSMOKE::KineticsMap_CHEMKIN* kineticsMapXML_;
@@ -143,34 +153,25 @@ class BatchReactor {
   OpenSMOKE::SensitivityAnalysis_Options* sensitivity_options_;
 
   // On the fly ROPA
-  OpenSMOKE::OnTheFlyROPA*
-      onTheFlyROPA_;  // new OpenSMOKE::OnTheFlyROPA(*thermodynamicsMapXML,
-                      // *kineticsMapXML);
+  OpenSMOKE::OnTheFlyROPA* onTheFlyROPA_;
 
   // On the fly CEMA
-  OpenSMOKE::OnTheFlyCEMA*
-      onTheFlyCEMA_;  // = new OpenSMOKE::OnTheFlyCEMA( *thermodynamicsMapXML,
-                      // *kineticsMapXML, batch_options->output_path());
+  OpenSMOKE::OnTheFlyCEMA* onTheFlyCEMA_;
 
   // On the fly PostProcessing
-  OpenSMOKE::OnTheFlyPostProcessing*
-      on_the_fly_post_processing_;  // = new
-                                    // OpenSMOKE::OnTheFlyPostProcessing(*thermodynamicsMapXML,
-                                    // *kineticsMapXML, batch_options->output_path());
+  OpenSMOKE::OnTheFlyPostProcessing* on_the_fly_post_processing_;
 
   // Ignition Delay Times
-  OpenSMOKE::IgnitionDelayTimes_Analyzer*
-      idt_;  // = new OpenSMOKE::IgnitionDelayTimes_Analyzer();
+  OpenSMOKE::IgnitionDelayTimes_Analyzer* idt_;
 
   OpenSMOKE::BatchReactor_VolumeProfile* batchreactor_volumeprofile_;
 
   // Polimi soot
-  OpenSMOKE::PolimiSoot_Analyzer*
-      polimi_soot_;  // = new OpenSMOKE::PolimiSoot_Analyzer(thermodynamicsMapXML);
+  OpenSMOKE::PolimiSoot_Analyzer* polimi_soot_;
 
   double T, P_Pa;
-  double Tf_, Pf_;
   OpenSMOKE::OpenSMOKEVectorDouble omega;
+  double Tf_, Pf_;
   Eigen::VectorXd omegaf_;
   Eigen::VectorXd xf_;
 
@@ -186,7 +187,7 @@ class BatchReactor {
   double rho_;
   double exchange_area_ = 0.;
   double global_thermal_exchange_coefficient_ = 0.;
-  double T_environment_ = T;
+  double T_environment_;
 
   bool verbose_ = true;
   std::vector<double> time_vector_;
@@ -198,7 +199,6 @@ class BatchReactor {
   OpenSMOKE::BatchReactor_Type type_;
 
   const void CeckStatusOfGasMixture() {
-    std::cout << "State variables: " << state_variables_ << std::endl;
     if (state_variables_ != 2) {
       OpenSMOKE::FatalErrorMessage(
           "The status of a gas mixture requires any 2 (and only 2) among: Temperature, "

@@ -4,6 +4,24 @@ BatchReactor::BatchReactor(){};
 
 BatchReactor::~BatchReactor(){};
 
+const void BatchReactor::SetAdditionalOptions() {
+  sensitivity_options_ = new OpenSMOKE::SensitivityAnalysis_Options();
+
+  onTheFlyROPA_ = new OpenSMOKE::OnTheFlyROPA(*thermodynamicsMapXML_, *kineticsMapXML_);
+
+  onTheFlyCEMA_ = new OpenSMOKE::OnTheFlyCEMA(*thermodynamicsMapXML_, *kineticsMapXML_,
+                                              batch_options_->output_path());
+
+  on_the_fly_post_processing_ = new OpenSMOKE::OnTheFlyPostProcessing(
+      *thermodynamicsMapXML_, *kineticsMapXML_, batch_options_->output_path());
+
+  idt_ = new OpenSMOKE::IgnitionDelayTimes_Analyzer();
+
+  batchreactor_volumeprofile_ = new OpenSMOKE::BatchReactor_VolumeProfile();
+
+  polimi_soot_ = new OpenSMOKE::PolimiSoot_Analyzer(thermodynamicsMapXML_);
+}
+
 const void BatchReactor::SetTemperature(const double &value, const std::string &units) {
   if (units == "K") {
     T = value;
@@ -12,6 +30,7 @@ const void BatchReactor::SetTemperature(const double &value, const std::string &
   } else {
     OpenSMOKE::FatalErrorMessage("Unknown temperature units");
   }
+  T_environment_ = T;
   state_variables_++;
   temperature_assigned_ = true;
 }
@@ -347,11 +366,11 @@ const void BatchReactor::SetType(const std::string &value) {
   }
 }
 
-const void BatchReactor::SetBatchOptions() {
+const void BatchReactor::SetBatchOptions(const bool& verbose) {
   batch_options_ = new OpenSMOKE::BatchReactor_Options();
   const boost::filesystem::path dummy_path = "/dev/null";
 
-  batch_options_->SetVerboseVideo(false);
+  batch_options_->SetVerboseVideo(verbose);
   batch_options_->SetOutputPath(dummy_path);
 }
 
@@ -361,9 +380,9 @@ const void BatchReactor::SetOdeOptions() {
 
 void BatchReactor::Solve() {
   CeckStatusOfGasMixture();
-
+  SetAdditionalOptions();
   if (!verbose_) {
-    std::cout.setstate(std::ios_base::failbit);
+    // std::cout.setstate(std::ios_base::failbit);
   }
 
   // Solve the ODE system: NonIsothermal, Constant Volume
@@ -458,8 +477,8 @@ const void BatchReactor::BatchReactor_wrapper(py::module_ &m) {
       .def("SetTemperature", &BatchReactor::SetTemperature, call_guard)
       .def("SetPressure", &BatchReactor::SetPressure, call_guard, "")
       .def("SetDensity", &BatchReactor::SetDensity, call_guard, "")
-      .def("SetEndTime", &BatchReactor::SetEndTime, call_guard, "")
       .def("SetStartTime", &BatchReactor::SetStartTime, call_guard, "")
+      .def("SetEndTime", &BatchReactor::SetEndTime, call_guard, "")
       .def("SetVolume", &BatchReactor::SetVolume, call_guard, "")
       .def("SetExchangeArea", &BatchReactor::SetExchangeArea, call_guard, "")
       .def("Set_global_thermal_exchange_coefficient",
@@ -474,5 +493,16 @@ const void BatchReactor::BatchReactor_wrapper(py::module_ &m) {
                              const std::vector<double> &>(
                &BatchReactor::SetInitialComposition),
            call_guard, "")
+      .def("SetInitialComposition",
+           py::overload_cast<const std::string &, const std::vector<double> &,
+                             const std::string &, const std::vector<std::string> &,
+                             std::vector<double> &, const std::string &,
+                             std::vector<std::string> &, std::vector<double> &>(
+               &BatchReactor::SetInitialComposition),
+           call_guard, "")
+      .def("Tf", &BatchReactor::Tf, call_guard, "")
+      .def("Pf", &BatchReactor::Pf, call_guard, "")
+      .def("omegaf", &BatchReactor::omegaf, call_guard, "")
+      .def("xf", &BatchReactor::xf, call_guard, "")
       .def("Solve", &BatchReactor::Solve, call_guard, "");
 }
