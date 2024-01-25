@@ -26,3 +26,16 @@ void OpenSMOKEMaps::ReadMechanism() {
     std::cout << "Time to read XML file: " << tEnd - tStart << std::endl;
   }
 }
+
+const void OpenSMOKEMaps::OpenSMOKEMaps_wrapper(py::module_& m) {
+  constexpr auto call_guard = py::call_guard<py::gil_scoped_release>();
+  py::class_<OpenSMOKEMaps>(m, "OpenSMOKEMaps")
+      .def(py::init<const std::string&, const bool&>(), call_guard, "Class constructor",
+           py::arg("kinetic_folder"), py::arg("verbose"))
+      .def("ReadMechanism", &OpenSMOKEMaps::ReadMechanism, call_guard,
+           "Function that performs the reading of the mechanism")
+      .def("ThermodynamicsMap", &OpenSMOKEMaps::thermodynamicsMapXML, call_guard,
+           "Getter function to the smart pointer of the thermodynamic map class")
+      .def("KineticsMap", &OpenSMOKEMaps::kineticsMapXML, call_guard,
+           "Getter function to the smart pointer of the kinetics map class");
+}

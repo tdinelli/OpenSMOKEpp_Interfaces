@@ -5,7 +5,12 @@
 #include <maps/Maps_CHEMKIN>
 
 // Standard include
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+
 #include <string>
+
+namespace py = pybind11;
 
 class OpenSMOKEMaps {
  public:
@@ -20,6 +25,8 @@ class OpenSMOKEMaps {
   }
 
   const OpenSMOKE::KineticsMap_CHEMKIN* const kineticsMapXML() { return kineticsMapXML_; }
+
+  const static void OpenSMOKEMaps_wrapper(py::module_&);
 
  private:
   OpenSMOKE::ThermodynamicsMap_CHEMKIN* thermodynamicsMapXML_;
