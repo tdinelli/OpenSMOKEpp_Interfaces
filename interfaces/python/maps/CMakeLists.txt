@@ -18,6 +18,10 @@ target_link_libraries(OpenSMOKEMaps
         Boost::timer
         Boost::chrono
         Boost::serialization
+        pybind11::pybind11
+        pybind11::python_link_helper
+        pybind11::thin_lto
+        pybind11::lto
 )
 
 target_include_directories(OpenSMOKEMaps

@@ -19,6 +19,10 @@ target_link_libraries(BatchReactor
         Boost::chrono
         Boost::serialization
         BLAS::BLAS
+        pybind11::pybind11
+        pybind11::python_link_helper
+        pybind11::thin_lto
+        pybind11::lto
     PRIVATE
         blocktdsge
 )
