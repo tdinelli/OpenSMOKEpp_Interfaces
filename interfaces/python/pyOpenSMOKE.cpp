@@ -2,25 +2,19 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+// clang-format off
 #include "maps/OpenSMOKEMaps.h"
+#include "ideal_reactors/batch/BatchReactor.h"
+// clang-format on
 
 namespace py = pybind11;
-
 constexpr auto call_guard = py::call_guard<py::gil_scoped_release>();
 
 PYBIND11_MODULE(pyOpenSMOKE, m) {
   m.doc() = "TODO";
 
   // Class handler for the maps
-  py::class_<OpenSMOKEMaps>(m, "OpenSMOKEMaps")
-      .def(py::init<const std::string&, const bool&>(), call_guard, "Class constructor",
-           py::arg("kinetic_folder"), py::arg("verbose"))
-      .def("ReadMechanism", &OpenSMOKEMaps::ReadMechanism, call_guard,
-           "Function that performs the reading of the mechanism")
-      .def("ThermodynamicsMap", &OpenSMOKEMaps::thermodynamicsMapXML, call_guard,
-           "Getter function to the smart pointer of the thermodynamic map class")
-      .def("KineticsMap", &OpenSMOKEMaps::kineticsMapXML, call_guard,
-           "Getter function to the smart pointer of the kinetics map class");
+  OpenSMOKEMaps::OpenSMOKEMaps_wrapper(m);
 
   // Thermodynamics Map (Gas Phase)
   // This interface is needed because in this way the module knows the return type and is
@@ -74,7 +68,8 @@ PYBIND11_MODULE(pyOpenSMOKE, m) {
            call_guard,
            "Returns the modified Arrhenius kinetic constants in [kmol, m, s]");
 
-    // Transport map (Gas Phase) TODO
+  // Transport map (Gas Phase) TODO
 
-    // Batch Reactor
+  // Batch Reactor
+  BatchReactor::BatchReactor_wrapper(m);
 }
