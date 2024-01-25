@@ -19,129 +19,164 @@
 
 // Batch reactor
 #include <idealreactors/batch/BatchReactor>
+#include "maps/KineticsMap_CHEMKIN.h"
 
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 // clang-format on
+
+namespace py = pybind11;
 
 class BatchReactor {
  public:
-  BatchReactor(std::string path_kinetics, bool verbose);
+  BatchReactor();
 
-  // Temperature
-  void SetTemperature(double value, std::string units);
-
-  // Pressure
-  void SetPressure(double value, std::string units);
-
-  // Density
-  void SetDensity(double value, std::string units);
-
-  // Composition
-  void SetInitialComposition(std::string initial_composition_type,
-                             std::vector<std::string> names, std::vector<double> values);
-
-  // Composition
-  void SetInitialComposition(
-      std::string initial_composition_type, std::vector<double> equivalence_ratios,
-      std::string fuel_composition_type, std::vector<std::string> names_fuel,
-      std::vector<double> values_fuel, std::string oxidizer_composition_type,
-      std::vector<std::string> names_oxidizer, std::vector<double> values_oxidizer);
-
-  // End time
-  void SetEndTime(double value, std::string units);
-
-  // Read start time
-  void SetStartTime(double value, std::string units);
-
-  // Read volume
-  void SetVolume(double value, std::string units);
-
-  // Exchange area
-  void SetExchangeArea(double value, std::string units);
-
-  // Read global thermal exchange coefficient
-  void Set_global_thermal_exchange_coefficient(double value, std::string units);
-
-  // Environment temperature
-  void SetEnvironmentTemperature(double value, std::string units);
-
-  // Batch reactors Type
-  void SetType(std::string value);
-
-  // Set Batch Output options
-  void SetBatchOptions(std::string output_path);
-
-  // Options
-  OpenSMOKE::BatchReactor_Options* batch_options = new OpenSMOKE::BatchReactor_Options();
-
-  // ODE Parameters
-  OpenSMOKE::ODE_Parameters* ode_parameters = new OpenSMOKE::ODE_Parameters();
-
-  // Sensitivity Options
-  OpenSMOKE::SensitivityAnalysis_Options* sensitivity_options;
-
-  // On the fly ROPA
-  OpenSMOKE::OnTheFlyROPA* onTheFlyROPA =
-      new OpenSMOKE::OnTheFlyROPA(*thermodynamicsMapXML, *kineticsMapXML);
-
-  // On the fly CEMA
-  OpenSMOKE::OnTheFlyCEMA* onTheFlyCEMA = new OpenSMOKE::OnTheFlyCEMA(
-      *thermodynamicsMapXML, *kineticsMapXML, batch_options->output_path());
-
-  // On the fly PostProcessing
-  OpenSMOKE::OnTheFlyPostProcessing* on_the_fly_post_processing =
-      new OpenSMOKE::OnTheFlyPostProcessing(*thermodynamicsMapXML, *kineticsMapXML,
-                                            batch_options->output_path());
-
-  // Ignition Delay Times
-  OpenSMOKE::IgnitionDelayTimes_Analyzer* idt =
-      new OpenSMOKE::IgnitionDelayTimes_Analyzer();
-
-  OpenSMOKE::BatchReactor_VolumeProfile* batchreactor_volumeprofile;
-
-  // Polimi soot
-  OpenSMOKE::PolimiSoot_Analyzer* polimi_soot =
-      new OpenSMOKE::PolimiSoot_Analyzer(thermodynamicsMapXML);
+  ~BatchReactor();
 
   void Solve();
 
-  const std::vector<double>& GetTime() const { return time_vector_; };
-  const std::vector<double>& GetTemperature() const { return temperature_vector_; };
-  const std::vector<double>& GetPressure() const { return pressure_vector_; };
+  // Setter functions
+  const void SetThermodynamic(OpenSMOKE::ThermodynamicsMap_CHEMKIN* thermo) {
+    thermodynamicsMapXML_ = thermo;
+  };
 
-  std::vector<std::vector<double>> GetMoleFractions(
-      std::vector<std::string> species_names) {
-    std::vector<std::vector<double>> selected_molefractions(
-        species_names.size(), std::vector<double>(time_vector_.size()));
-    for (unsigned int i = 0; i < species_names.size(); i++) {
-      unsigned int j = thermodynamicsMapXML->IndexOfSpecies(species_names[i]);
-      for (unsigned int k = 0; k < time_vector_.size(); k++)
-        selected_molefractions[i][k] = mole_fractions_[k][j];
-    }
-    return selected_molefractions;
-  }
+  const void SetKinetics(OpenSMOKE::KineticsMap_CHEMKIN* kinetics) {
+    kineticsMapXML_ = kinetics;
+  };
 
-  std::vector<std::vector<double>> GetMassFractions(
-      std::vector<std::string> species_names) {
-    std::vector<std::vector<double>> selected_massfractions(
-        species_names.size(), std::vector<double>(time_vector_.size()));
-    for (unsigned int i = 0; i < species_names.size(); i++) {
-      unsigned int j = thermodynamicsMapXML->IndexOfSpecies(species_names[i]);
-      for (unsigned int k = 0; k < time_vector_.size(); k++)
-        selected_massfractions[i][k] = mass_fractions_[k][j];
-    }
-    return selected_massfractions;
-  }
+  // Temperature
+  const void SetTemperature(const double& value, const std::string& units);
+
+  // Pressure
+  const void SetPressure(const double& value, const std::string& units);
+
+  // Density
+  const void SetDensity(const double& value, const std::string& units);
+
+  // Composition
+  const void SetInitialComposition(const std::string& initial_composition_type,
+                                   const std::vector<std::string>& names,
+                                   const std::vector<double>& values);
+
+  // Composition
+  const void SetInitialComposition(const std::string& initial_composition_type,
+                                   const std::vector<double>& equivalence_ratios,
+                                   const std::string& fuel_composition_type,
+                                   const std::vector<std::string>& fuel_names,
+                                   std::vector<double>& values_fuel,
+                                   const std::string& oxidizer_composition_type,
+                                   std::vector<std::string>& oxidizer_names,
+                                   std::vector<double>& values_oxidizer);
+
+  // End time
+  const void SetEndTime(const double& value, const std::string& units);
+
+  // Read start time
+  const void SetStartTime(const double& value, const std::string& units);
+
+  // Read volume
+  const void SetVolume(const double& value, const std::string& units);
+
+  // Exchange area
+  const void SetExchangeArea(const double& value, const std::string& units);
+
+  // Read global thermal exchange coefficient
+  const void Set_global_thermal_exchange_coefficient(const double& value,
+                                                     const std::string& units);
+
+  // Environment temperature
+  const void SetEnvironmentTemperature(const double& value, const std::string& units);
+
+  // Batch reactors Type
+  const void SetType(const std::string& value);
+
+  // Set Batch Output options
+  const void SetBatchOptions();
+
+  // Set Ode Options
+  const void SetOdeOptions();
+  // const std::vector<double>& GetTime() const { return time_vector_; };
+  // const std::vector<double>& GetTemperature() const { return temperature_vector_; };
+  // const std::vector<double>& GetPressure() const { return pressure_vector_; };
+  //
+  // const std::vector<std::vector<double>>& GetMoleFractions(const
+  // std::vector<std::string> &species_names) {
+  //   std::vector<std::vector<double>> selected_molefractions(species_names.size(),
+  //   std::vector<double>(time_vector_.size())); for (unsigned int i = 0; i <
+  //   species_names.size(); i++) {
+  //     unsigned int j = thermodynamicsMapXML->IndexOfSpecies(species_names[i]);
+  //     for (unsigned int k = 0; k < time_vector_.size(); k++)
+  //       selected_molefractions[i][k] = mole_fractions_[k][j];
+  //   }
+  //   return selected_molefractions;
+  // }
+
+  // std::vector<std::vector<double>> GetMassFractions(
+  //     std::vector<std::string> species_names) {
+  //   std::vector<std::vector<double>> selected_massfractions(
+  //       species_names.size(), std::vector<double>(time_vector_.size()));
+  //   for (unsigned int i = 0; i < species_names.size(); i++) {
+  //     unsigned int j = thermodynamicsMapXML->IndexOfSpecies(species_names[i]);
+  //     for (unsigned int k = 0; k < time_vector_.size(); k++)
+  //       selected_massfractions[i][k] = mass_fractions_[k][j];
+  //   }
+  //   return selected_massfractions;
+  // }
+
+  // Getter functions
+
+  // Python Wrapper
+  const static void BatchReactor_wrapper(py::module_&);
 
  private:
-  OpenSMOKE::ThermodynamicsMap_CHEMKIN* thermodynamicsMapXML;
-  OpenSMOKE::KineticsMap_CHEMKIN* kineticsMapXML;
+  OpenSMOKE::ThermodynamicsMap_CHEMKIN* thermodynamicsMapXML_;
+
+  OpenSMOKE::KineticsMap_CHEMKIN* kineticsMapXML_;
+
+  // Options
+  OpenSMOKE::BatchReactor_Options* batch_options_;
+
+  // ODE Parameters
+  OpenSMOKE::ODE_Parameters* ode_parameters_;
+
+  // Sensitivity Options
+  OpenSMOKE::SensitivityAnalysis_Options* sensitivity_options_;
+
+  // On the fly ROPA
+  OpenSMOKE::OnTheFlyROPA*
+      onTheFlyROPA_;  // new OpenSMOKE::OnTheFlyROPA(*thermodynamicsMapXML,
+                      // *kineticsMapXML);
+
+  // On the fly CEMA
+  OpenSMOKE::OnTheFlyCEMA*
+      onTheFlyCEMA_;  // = new OpenSMOKE::OnTheFlyCEMA( *thermodynamicsMapXML,
+                      // *kineticsMapXML, batch_options->output_path());
+
+  // On the fly PostProcessing
+  OpenSMOKE::OnTheFlyPostProcessing*
+      on_the_fly_post_processing_;  // = new
+                                    // OpenSMOKE::OnTheFlyPostProcessing(*thermodynamicsMapXML,
+                                    // *kineticsMapXML, batch_options->output_path());
+
+  // Ignition Delay Times
+  OpenSMOKE::IgnitionDelayTimes_Analyzer*
+      idt_;  // = new OpenSMOKE::IgnitionDelayTimes_Analyzer();
+
+  OpenSMOKE::BatchReactor_VolumeProfile* batchreactor_volumeprofile_;
+
+  // Polimi soot
+  OpenSMOKE::PolimiSoot_Analyzer*
+      polimi_soot_;  // = new OpenSMOKE::PolimiSoot_Analyzer(thermodynamicsMapXML);
 
   double T, P_Pa;
+  double Tf_, Pf_;
   OpenSMOKE::OpenSMOKEVectorDouble omega;
+  Eigen::VectorXd omegaf_;
+  Eigen::VectorXd xf_;
+
   double tEnd_;
   double tStart_ = 0.;  // default 0
   double volume_ = 1.;  // default value [1 m3]
-  OpenSMOKE::BatchReactor_Type type_;
 
   unsigned int state_variables_ = 0;
   bool temperature_assigned_ = false;
@@ -160,7 +195,10 @@ class BatchReactor {
   std::vector<OpenSMOKE::OpenSMOKEVectorDouble> mole_fractions_;
   std::vector<OpenSMOKE::OpenSMOKEVectorDouble> mass_fractions_;
 
-  void CeckStatusOfGasMixture() {
+  OpenSMOKE::BatchReactor_Type type_;
+
+  const void CeckStatusOfGasMixture() {
+    std::cout << "State variables: " << state_variables_ << std::endl;
     if (state_variables_ != 2) {
       OpenSMOKE::FatalErrorMessage(
           "The status of a gas mixture requires any 2 (and only 2) among: Temperature, "
