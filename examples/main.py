@@ -7,7 +7,7 @@ if os.path.isdir("/Users/tdinelli"):
 from pyOpenSMOKE import OpenSMOKEMaps
 
 maps = OpenSMOKEMaps(
-    "/Users/tdinelli/Documents/GitHub/OpenSMOKEppTutorials/examples/OpenSMOKEpp_BatchReactor/01a-isothermal-constantvolume/kinetics", True)
+    "/Users/tdinelli/Documents/GitHub/OpenSMOKEppTutorials/examples/OpenSMOKEpp_BatchReactor/13a-ignition-delay-times/kinetics", True)
 
 maps.ReadMechanism()
 
