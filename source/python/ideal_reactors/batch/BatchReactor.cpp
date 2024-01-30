@@ -1,26 +1,25 @@
 #include "BatchReactor.h"
 
-BatchReactor::BatchReactor(){};
+#include <memory>
+
+#include "math/OpenSMOKEFunctions.h"
+
+BatchReactor::BatchReactor() {
+  tStart_ = 0.;  // default 0
+  volume_ = 1.;  // default value [1 m3]
+
+  state_variables_ = 0;
+  temperature_assigned_ = false;
+  pressure_assigned_ = false;
+  density_assigned_ = false;
+
+  exchange_area_ = 0.;
+  global_thermal_exchange_coefficient_ = 0.;
+
+  verbose_ = true;
+};
 
 BatchReactor::~BatchReactor(){};
-
-const void BatchReactor::SetAdditionalOptions() {
-  sensitivity_options_ = new OpenSMOKE::SensitivityAnalysis_Options();
-
-  onTheFlyROPA_ = new OpenSMOKE::OnTheFlyROPA(*thermodynamicsMapXML_, *kineticsMapXML_);
-
-  onTheFlyCEMA_ = new OpenSMOKE::OnTheFlyCEMA(*thermodynamicsMapXML_, *kineticsMapXML_,
-                                              batch_options_->output_path());
-
-  on_the_fly_post_processing_ = new OpenSMOKE::OnTheFlyPostProcessing(
-      *thermodynamicsMapXML_, *kineticsMapXML_, batch_options_->output_path());
-
-  idt_ = new OpenSMOKE::IgnitionDelayTimes_Analyzer();
-
-  batchreactor_volumeprofile_ = new OpenSMOKE::BatchReactor_VolumeProfile();
-
-  polimi_soot_ = new OpenSMOKE::PolimiSoot_Analyzer(thermodynamicsMapXML_);
-}
 
 const void BatchReactor::SetTemperature(const double &value, const std::string &units) {
   if (units == "K") {
@@ -362,117 +361,146 @@ const void BatchReactor::SetType(const std::string &value) {
   } else if (value == "NonIsothermal-UserDefinedVolume") {
     type_ = OpenSMOKE::BATCH_REACTOR_NONISOTHERMAL_USERDEFINEDVOLUME;
   } else {
-    OpenSMOKE::FatalErrorMessage("Unknown batch reactor type_: " + value);
+    OpenSMOKE::FatalErrorMessage("Unknown batch reactor type: " + value);
   }
 }
 
-const void BatchReactor::SetBatchOptions(const bool& verbose) {
+const void BatchReactor::SetBatchOptions(const bool &verbose, const bool &save_results,
+                                         const std::string &output_path) {
   batch_options_ = new OpenSMOKE::BatchReactor_Options();
+
   const boost::filesystem::path dummy_path = "/dev/null";
 
   batch_options_->SetVerboseVideo(verbose);
-  batch_options_->SetOutputPath(dummy_path);
+  if (!save_results) {
+    batch_options_->SetOutputPath(dummy_path);
+  } else {
+    batch_options_->SetOutputPath(boost::filesystem::path(output_path));
+    batch_options_->SetNumberOfSteps_File(1);
+  }
 }
 
 const void BatchReactor::SetOdeOptions() {
   ode_parameters_ = new OpenSMOKE::ODE_Parameters();
+
+  // ode_parameters_->SetRelativeTolerance(1e-12);
+  // ode_parameters_->SetAbsoluteTolerance(1e-12);
+  // ode_parameters_->SetMinimumStep();
+  // ode_parameters_->SetMaximumStep();
+  // ode_parameters_->SetInitialStep();
+  // ode_parameters_->SetMaximumNumberOfSteps();
+  // ode_parameters_->SetMaximumOrder();
+  // ode_parameters_->SetFullPivoting();
+}
+
+const void BatchReactor::SetAdditionalOptions() {
+  sensitivity_options_ = new OpenSMOKE::SensitivityAnalysis_Options();
+
+  onTheFlyROPA_ = new OpenSMOKE::OnTheFlyROPA(*thermodynamicsMapXML_, *kineticsMapXML_);
+
+  onTheFlyCEMA_ = new OpenSMOKE::OnTheFlyCEMA(*thermodynamicsMapXML_, *kineticsMapXML_,
+                                              batch_options_->output_path());
+
+  on_the_fly_post_processing_ = new OpenSMOKE::OnTheFlyPostProcessing(
+      *thermodynamicsMapXML_, *kineticsMapXML_, batch_options_->output_path());
+
+  idt_ = new OpenSMOKE::IgnitionDelayTimes_Analyzer();
+
+  batchreactor_volumeprofile_ = new OpenSMOKE::BatchReactor_VolumeProfile();
+
+  polimi_soot_ = new OpenSMOKE::PolimiSoot_Analyzer(thermodynamicsMapXML_);
+}
+
+const void BatchReactor::CleanMemory() {
+  // At the moment clean memory handles only the additional not modified/used stuff
+  delete sensitivity_options_;
+  sensitivity_options_ = NULL;
+
+  delete onTheFlyROPA_;
+  onTheFlyROPA_ = NULL;
+
+  delete onTheFlyCEMA_;
+  onTheFlyCEMA_ = NULL;
+
+  delete on_the_fly_post_processing_;
+  on_the_fly_post_processing_ = NULL;
+
+  delete idt_;
+
+  delete batchreactor_volumeprofile_;
+  batchreactor_volumeprofile_ = NULL;
+
+  delete polimi_soot_;
+  polimi_soot_ = NULL;
 }
 
 void BatchReactor::Solve() {
+  // Perform check of the thermochemistry state of the system
   CeckStatusOfGasMixture();
-  SetAdditionalOptions();
-  if (!verbose_) {
-    // std::cout.setstate(std::ios_base::failbit);
-  }
 
   // Solve the ODE system: NonIsothermal, Constant Volume
   if (type_ == OpenSMOKE::BATCH_REACTOR_NONISOTHERMAL_CONSTANTV) {
-    OpenSMOKE::BatchReactor_NonIsothermal_ConstantVolume batch(
+    batch_ = std::make_unique<OpenSMOKE::BatchReactor_NonIsothermal_ConstantVolume>(
         *thermodynamicsMapXML_, *kineticsMapXML_, *ode_parameters_, *batch_options_,
         *onTheFlyROPA_, *onTheFlyCEMA_, *on_the_fly_post_processing_, *idt_,
         *polimi_soot_, volume_, T, P_Pa, omega, global_thermal_exchange_coefficient_,
         exchange_area_, T_environment_);
 
-    batch.Solve(tStart_, tEnd_);
-
-    OpenSMOKE::OpenSMOKEVectorDouble tmp_omegaf_(
-        thermodynamicsMapXML_->NumberOfSpecies());
-    OpenSMOKE::OpenSMOKEVectorDouble tmp_xf_(thermodynamicsMapXML_->NumberOfSpecies());
-
-    batch.GetFinalStatus(Tf_, Pf_, tmp_omegaf_);
-
-    double MWf_ = thermodynamicsMapXML_->MolecularWeight_From_MassFractions(
-        tmp_omegaf_.GetHandle());
-    thermodynamicsMapXML_->MoleFractions_From_MassFractions(tmp_xf_.GetHandle(), MWf_,
-                                                            tmp_omegaf_.GetHandle());
-
-    xf_.resize(tmp_xf_.Size());
-    tmp_xf_.CopyTo(xf_.data());
-
-    omegaf_.resize(tmp_omegaf_.Size());
-    tmp_omegaf_.CopyTo(omegaf_.data());
-  }
-
-  // Solve the ODE system: NonIsothermal, Volume assigned according to a specified law
-  if (type_ == OpenSMOKE::BATCH_REACTOR_NONISOTHERMAL_USERDEFINEDVOLUME) {
-    std::cout << "No USER DEFINED VOLUME" << std::endl;
+    batch_->Solve(tStart_, tEnd_);
+  } else if (type_ == OpenSMOKE::BATCH_REACTOR_NONISOTHERMAL_USERDEFINEDVOLUME) {
+    std::cout << "USER DEFINED VOLUME batch reactor not implemented yet!" << std::endl;
     exit(-1);
-  }
-
-  // Solve the ODE system: Isothermal, Constant Volume
-  if (type_ == OpenSMOKE::BATCH_REACTOR_ISOTHERMAL_CONSTANTV) {
-    OpenSMOKE::BatchReactor_Isothermal_ConstantVolume batch(
+  } else if (type_ == OpenSMOKE::BATCH_REACTOR_ISOTHERMAL_CONSTANTV) {
+    batch_ = std::make_unique<OpenSMOKE::BatchReactor_Isothermal_ConstantVolume>(
         *thermodynamicsMapXML_, *kineticsMapXML_, *ode_parameters_, *batch_options_,
         *onTheFlyROPA_, *onTheFlyCEMA_, *on_the_fly_post_processing_, *idt_,
         *polimi_soot_, volume_, T, P_Pa, omega);
 
-    // batch.SaveResults(true);
-    batch.Solve(tStart_, tEnd_);
-
-    OpenSMOKE::OpenSMOKEVectorDouble tmp_omegaf_(
-        thermodynamicsMapXML_->NumberOfSpecies());
-    OpenSMOKE::OpenSMOKEVectorDouble tmp_xf_(thermodynamicsMapXML_->NumberOfSpecies());
-
-    batch.GetFinalStatus(Tf_, Pf_, tmp_omegaf_);
-
-    double MWf_ = thermodynamicsMapXML_->MolecularWeight_From_MassFractions(
-        tmp_omegaf_.GetHandle());
-    thermodynamicsMapXML_->MoleFractions_From_MassFractions(tmp_xf_.GetHandle(), MWf_,
-                                                            tmp_omegaf_.GetHandle());
-
-    xf_.resize(tmp_xf_.Size());
-    tmp_xf_.CopyTo(xf_.data());
-
-    omegaf_.resize(tmp_omegaf_.Size());
-    tmp_omegaf_.CopyTo(omegaf_.data());
-  }
-
-  // Solve the ODE system: NonIsothermal, Constant Pressure
-  if (type_ == OpenSMOKE::BATCH_REACTOR_NONISOTHERMAL_CONSTANTP) {
-    OpenSMOKE::BatchReactor_NonIsothermal_ConstantPressure batch(
+    batch_->Solve(tStart_, tEnd_);
+  } else if (type_ == OpenSMOKE::BATCH_REACTOR_NONISOTHERMAL_CONSTANTP) {
+    batch_ = std::make_unique<OpenSMOKE::BatchReactor_NonIsothermal_ConstantPressure>(
         *thermodynamicsMapXML_, *kineticsMapXML_, *ode_parameters_, *batch_options_,
         *onTheFlyROPA_, *onTheFlyCEMA_, *on_the_fly_post_processing_, *idt_,
         *polimi_soot_, volume_, T, P_Pa, omega, global_thermal_exchange_coefficient_,
         exchange_area_, T_environment_);
-    batch.Solve(tStart_, tEnd_);
-  }
-
-  // Solve the ODE system: Isothermal, Constant Pressure
-  if (type_ == OpenSMOKE::BATCH_REACTOR_ISOTHERMAL_CONSTANTP) {
-    OpenSMOKE::BatchReactor_Isothermal_ConstantPressure batch(
+    batch_->Solve(tStart_, tEnd_);
+  } else if (type_ == OpenSMOKE::BATCH_REACTOR_ISOTHERMAL_CONSTANTP) {
+    batch_ = std::make_unique<OpenSMOKE::BatchReactor_Isothermal_ConstantPressure>(
         *thermodynamicsMapXML_, *kineticsMapXML_, *ode_parameters_, *batch_options_,
         *onTheFlyROPA_, *onTheFlyCEMA_, *on_the_fly_post_processing_, *idt_,
         *polimi_soot_, volume_, T, P_Pa, omega);
-    batch.Solve(tStart_, tEnd_);
+    batch_->Solve(tStart_, tEnd_);
+  } else {
+    OpenSMOKE::FatalErrorMessage("Unknown batch reactor type or type not setted");
   }
+
+  OpenSMOKE::OpenSMOKEVectorDouble tmp_omegaf_(thermodynamicsMapXML_->NumberOfSpecies());
+  OpenSMOKE::OpenSMOKEVectorDouble tmp_xf_(thermodynamicsMapXML_->NumberOfSpecies());
+
+  batch_->GetFinalStatus(Tf_, Pf_, tmp_omegaf_);
+
+  double MWf_ =
+      thermodynamicsMapXML_->MolecularWeight_From_MassFractions(tmp_omegaf_.GetHandle());
+
+  thermodynamicsMapXML_->MoleFractions_From_MassFractions(tmp_xf_.GetHandle(), MWf_,
+                                                          tmp_omegaf_.GetHandle());
+
+  xf_.resize(tmp_xf_.Size());
+  tmp_xf_.CopyTo(xf_.data());
+
+  omegaf_.resize(tmp_omegaf_.Size());
+  tmp_omegaf_.CopyTo(omegaf_.data());
+
+  CleanMemory();
 }
 
 const void BatchReactor::BatchReactor_wrapper(py::module_ &m) {
   constexpr auto call_guard = py::call_guard<py::gil_scoped_release>();
 
   py::class_<BatchReactor>(m, "BatchReactor")
-      .def(py::init<>(), call_guard, "")
-      .def("SetThermodynamic", &BatchReactor::SetThermodynamic, call_guard, "")
+      .def(py::init<>(), call_guard, "Constructor")
+      .def("SetThermodynamic", &BatchReactor::SetThermodynamic, call_guard,
+           "Set thermodynamic map object")
       .def("SetKinetics", &BatchReactor::SetKinetics, call_guard, "")
       .def("SetTemperature", &BatchReactor::SetTemperature, call_guard)
       .def("SetPressure", &BatchReactor::SetPressure, call_guard, "")
@@ -486,8 +514,10 @@ const void BatchReactor::BatchReactor_wrapper(py::module_ &m) {
       .def("SetEnvironmentTemperature", &BatchReactor::SetEnvironmentTemperature,
            call_guard, "")
       .def("SetType", &BatchReactor::SetType, call_guard, "")
-      .def("SetBatchOptions", &BatchReactor::SetBatchOptions, call_guard, "")
+      .def("SetBatchOptions", &BatchReactor::SetBatchOptions, call_guard, "",
+           py::arg("verbose"), py::arg("save_results"), py::arg("output_path"))
       .def("SetOdeOptions", &BatchReactor::SetOdeOptions, call_guard, "")
+      .def("SetAdditionalOptions", &BatchReactor::SetAdditionalOptions, call_guard, "")
       .def("SetInitialComposition",
            py::overload_cast<const std::string &, const std::vector<std::string> &,
                              const std::vector<double> &>(

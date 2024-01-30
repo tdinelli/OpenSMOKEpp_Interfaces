@@ -19,8 +19,8 @@
 
 // Batch reactor
 #include <idealreactors/batch/BatchReactor>
-#include "maps/KineticsMap_CHEMKIN.h"
 
+// pyBIND11
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/eigen.h>
@@ -92,37 +92,11 @@ class BatchReactor {
   const void SetType(const std::string& value);
 
   // Set Batch Output options
-  const void SetBatchOptions(const bool& verbose);
+  const void SetBatchOptions(const bool& verbose, const bool& save_results,
+                             const std::string& output_path);
 
   // Set Ode Options
   const void SetOdeOptions();
-  // const std::vector<double>& GetTime() const { return time_vector_; };
-  // const std::vector<double>& GetTemperature() const { return temperature_vector_; };
-  // const std::vector<double>& GetPressure() const { return pressure_vector_; };
-  //
-  // const std::vector<std::vector<double>>& GetMoleFractions(const
-  // std::vector<std::string> &species_names) {
-  //   std::vector<std::vector<double>> selected_molefractions(species_names.size(),
-  //   std::vector<double>(time_vector_.size())); for (unsigned int i = 0; i <
-  //   species_names.size(); i++) {
-  //     unsigned int j = thermodynamicsMapXML->IndexOfSpecies(species_names[i]);
-  //     for (unsigned int k = 0; k < time_vector_.size(); k++)
-  //       selected_molefractions[i][k] = mole_fractions_[k][j];
-  //   }
-  //   return selected_molefractions;
-  // }
-
-  // std::vector<std::vector<double>> GetMassFractions(
-  //     std::vector<std::string> species_names) {
-  //   std::vector<std::vector<double>> selected_massfractions(
-  //       species_names.size(), std::vector<double>(time_vector_.size()));
-  //   for (unsigned int i = 0; i < species_names.size(); i++) {
-  //     unsigned int j = thermodynamicsMapXML->IndexOfSpecies(species_names[i]);
-  //     for (unsigned int k = 0; k < time_vector_.size(); k++)
-  //       selected_massfractions[i][k] = mass_fractions_[k][j];
-  //   }
-  //   return selected_massfractions;
-  // }
 
   // Getter functions
   const double& Tf() const { return Tf_; };
@@ -137,7 +111,11 @@ class BatchReactor {
   const static void BatchReactor_wrapper(py::module_&);
 
  private:
+  const void CleanMemory();
+
   const void SetAdditionalOptions();
+
+  std::unique_ptr<OpenSMOKE::BatchReactor> batch_;
 
   OpenSMOKE::ThermodynamicsMap_CHEMKIN* thermodynamicsMapXML_;
 
@@ -149,7 +127,7 @@ class BatchReactor {
   // ODE Parameters
   OpenSMOKE::ODE_Parameters* ode_parameters_;
 
-  // Sensitivity Options
+  // Sensitivity Option
   OpenSMOKE::SensitivityAnalysis_Options* sensitivity_options_;
 
   // On the fly ROPA
@@ -176,29 +154,24 @@ class BatchReactor {
   Eigen::VectorXd xf_;
 
   double tEnd_;
-  double tStart_ = 0.;  // default 0
-  double volume_ = 1.;  // default value [1 m3]
+  double tStart_;
+  double volume_;
 
-  unsigned int state_variables_ = 0;
-  bool temperature_assigned_ = false;
-  bool pressure_assigned_ = false;
-  bool density_assigned_ = false;
+  unsigned int state_variables_;
+  bool temperature_assigned_;
+  bool pressure_assigned_;
+  bool density_assigned_;
 
   double rho_;
-  double exchange_area_ = 0.;
-  double global_thermal_exchange_coefficient_ = 0.;
+  double exchange_area_;
+  double global_thermal_exchange_coefficient_;
   double T_environment_;
 
-  bool verbose_ = true;
-  std::vector<double> time_vector_;
-  std::vector<double> temperature_vector_;
-  std::vector<double> pressure_vector_;
-  std::vector<OpenSMOKE::OpenSMOKEVectorDouble> mole_fractions_;
-  std::vector<OpenSMOKE::OpenSMOKEVectorDouble> mass_fractions_;
+  bool verbose_;
 
   OpenSMOKE::BatchReactor_Type type_;
 
-  const void CeckStatusOfGasMixture() {
+  const void CeckStatusOfGasMixture() const {
     if (state_variables_ != 2) {
       OpenSMOKE::FatalErrorMessage(
           "The status of a gas mixture requires any 2 (and only 2) among: Temperature, "

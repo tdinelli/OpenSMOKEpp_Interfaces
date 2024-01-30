@@ -36,4 +36,5 @@ class OpenSMOKEMaps {
 
   boost::filesystem::path kinetics_;
   boost::filesystem::path reaction_names_;
+  bool verbose_;
 };

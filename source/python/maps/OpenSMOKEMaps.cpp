@@ -7,23 +7,32 @@ OpenSMOKEMaps::OpenSMOKEMaps(const std::string& kinetic_folder, const bool& verb
   boost::filesystem::path kinetic_folder_ = kinetic_folder;
   kinetics_ = kinetic_folder_ / "kinetics.xml";
   reaction_names_ = kinetic_folder_ / "reaction_names.xml";
+  verbose_ = verbose;
 };
 
 OpenSMOKEMaps::~OpenSMOKEMaps(){};
 
 void OpenSMOKEMaps::ReadMechanism() {
-  // TODO: Implement verbosity
   // Read thermodynamics and kinetics maps
   {
     boost::property_tree::ptree ptree;
     boost::property_tree::read_xml(kinetics_.string(), ptree);
 
     double tStart = OpenSMOKE::OpenSMOKEGetCpuTime();
-    thermodynamicsMapXML_ = new OpenSMOKE::ThermodynamicsMap_CHEMKIN(ptree);
+    thermodynamicsMapXML_ = new OpenSMOKE::ThermodynamicsMap_CHEMKIN(ptree, verbose_);
+
+    if (!verbose_) {
+      std::cout.setstate(std::ios_base::failbit);
+    }
+
     kineticsMapXML_ = new OpenSMOKE::KineticsMap_CHEMKIN(*thermodynamicsMapXML_, ptree);
     double tEnd = OpenSMOKE::OpenSMOKEGetCpuTime();
 
     std::cout << "Time to read XML file: " << tEnd - tStart << std::endl;
+
+    if (!verbose_) {
+      std::cout.clear();
+    }
   }
 }
 
