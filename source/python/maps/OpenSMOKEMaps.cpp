@@ -1,12 +1,17 @@
 #include "OpenSMOKEMaps.h"
 
-#include <boost/filesystem/file_status.hpp>
-
 OpenSMOKEMaps::OpenSMOKEMaps(const std::string& kinetic_folder, const bool& verbose) {
-  // TODO: check files and directory existance
   boost::filesystem::path kinetic_folder_ = kinetic_folder;
+
   kinetics_ = kinetic_folder_ / "kinetics.xml";
+  if (!boost::filesystem::exists(kinetics_)) {
+    OpenSMOKE::FatalErrorMessage("The folder of the kinetic mechanism does not contains kinetics.xml");
+  }
+
   reaction_names_ = kinetic_folder_ / "reaction_names.xml";
+  if (!boost::filesystem::exists(reaction_names_)) {
+    OpenSMOKE::FatalErrorMessage("The folder of the kinetic mechanism does not contains reaction_names.xml");
+  }
   verbose_ = verbose;
 };
 
@@ -20,19 +25,10 @@ void OpenSMOKEMaps::ReadMechanism() {
 
     double tStart = OpenSMOKE::OpenSMOKEGetCpuTime();
     thermodynamicsMapXML_ = new OpenSMOKE::ThermodynamicsMap_CHEMKIN(ptree, verbose_);
-
-    if (!verbose_) {
-      std::cout.setstate(std::ios_base::failbit);
-    }
-
-    kineticsMapXML_ = new OpenSMOKE::KineticsMap_CHEMKIN(*thermodynamicsMapXML_, ptree);
+    kineticsMapXML_ = new OpenSMOKE::KineticsMap_CHEMKIN(*thermodynamicsMapXML_, ptree, verbose_);
     double tEnd = OpenSMOKE::OpenSMOKEGetCpuTime();
 
     std::cout << "Time to read XML file: " << tEnd - tStart << std::endl;
-
-    if (!verbose_) {
-      std::cout.clear();
-    }
   }
 }
 
