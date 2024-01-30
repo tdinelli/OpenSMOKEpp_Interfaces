@@ -369,15 +369,11 @@ const void BatchReactor::SetBatchOptions(const bool &verbose, const bool &save_r
                                          const std::string &output_path) {
   batch_options_ = new OpenSMOKE::BatchReactor_Options();
 
-  const boost::filesystem::path dummy_path = "/dev/null";
+  const boost::filesystem::path dummy_path = output_path;
 
   batch_options_->SetVerboseVideo(verbose);
-  if (!save_results) {
-    batch_options_->SetOutputPath(dummy_path);
-  } else {
-    batch_options_->SetOutputPath(boost::filesystem::path(output_path));
-    batch_options_->SetNumberOfSteps_File(1);
-  }
+  batch_options_->SetOutputPath(dummy_path);
+  batch_options_->SetNumberOfSteps_File(1);
 }
 
 const void BatchReactor::SetOdeOptions() {
@@ -490,8 +486,6 @@ void BatchReactor::Solve() {
 
   omegaf_.resize(tmp_omegaf_.Size());
   tmp_omegaf_.CopyTo(omegaf_.data());
-
-  CleanMemory();
 }
 
 const void BatchReactor::BatchReactor_wrapper(py::module_ &m) {
@@ -499,6 +493,7 @@ const void BatchReactor::BatchReactor_wrapper(py::module_ &m) {
 
   py::class_<BatchReactor>(m, "BatchReactor")
       .def(py::init<>(), call_guard, "Constructor")
+      .def("CleanMemory", &BatchReactor::CleanMemory, call_guard, "")
       .def("SetThermodynamic", &BatchReactor::SetThermodynamic, call_guard,
            "Set thermodynamic map object")
       .def("SetKinetics", &BatchReactor::SetKinetics, call_guard, "")
@@ -515,7 +510,8 @@ const void BatchReactor::BatchReactor_wrapper(py::module_ &m) {
            call_guard, "")
       .def("SetType", &BatchReactor::SetType, call_guard, "")
       .def("SetBatchOptions", &BatchReactor::SetBatchOptions, call_guard, "",
-           py::arg("verbose"), py::arg("save_results"), py::arg("output_path"))
+           py::arg("verbose") = false, py::arg("save_results") = false,
+           py::arg("output_path") = "/dev/null")
       .def("SetOdeOptions", &BatchReactor::SetOdeOptions, call_guard, "")
       .def("SetAdditionalOptions", &BatchReactor::SetAdditionalOptions, call_guard, "")
       .def("SetInitialComposition",

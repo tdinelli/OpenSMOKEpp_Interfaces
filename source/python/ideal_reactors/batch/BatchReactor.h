@@ -92,8 +92,9 @@ class BatchReactor {
   const void SetType(const std::string& value);
 
   // Set Batch Output options
-  const void SetBatchOptions(const bool& verbose, const bool& save_results,
-                             const std::string& output_path);
+  const void SetBatchOptions(const bool& verbose = false,
+                             const bool& save_results = false,
+                             const std::string& output_path = "/dev/null");
 
   // Set Ode Options
   const void SetOdeOptions();
