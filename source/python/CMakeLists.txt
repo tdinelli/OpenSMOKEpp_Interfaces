@@ -44,3 +44,13 @@ target_compile_definitions(${PROJECT_NAME}
     PUBLIC
         OPENSMOKE_USE_OPENBLAS=1
 )
+
+# --------------------------------------------------------------------
+# Installing options
+# --------------------------------------------------------------------
+
+install(TARGETS
+    ${PROJECT_NAME}
+    DESTINATION
+    ${CMAKE_INSTALL_PREFIX}
+)

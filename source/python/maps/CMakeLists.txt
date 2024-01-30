@@ -37,3 +37,13 @@ target_compile_options(OpenSMOKEMaps
         -Wno-mismatched-new-delete
         -Wno-switch
 )
+
+# --------------------------------------------------------------------
+# Installing options
+# --------------------------------------------------------------------
+
+install(TARGETS
+    OpenSMOKEMaps
+    DESTINATION
+    ${CMAKE_INSTALL_PREFIX}
+)

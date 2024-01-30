@@ -49,3 +49,13 @@ target_compile_definitions(BatchReactor
     PRIVATE
         OPENSMOKE_USE_OPENBLAS=1
 )
+
+# --------------------------------------------------------------------
+# Installing options
+# --------------------------------------------------------------------
+
+install(TARGETS
+    BatchReactor
+    DESTINATION
+    ${CMAKE_INSTALL_PREFIX}
+)
