@@ -32,23 +32,35 @@ PYBIND11_MODULE(pyOpenSMOKE, m) {
   // the Object into a python object
   py::class_<OpenSMOKE::ThermodynamicsMap_CHEMKIN>(m, "ThermodynamicsMap_CHEMKIN")
       .def(py::init<const OpenSMOKE::ThermodynamicsMap_CHEMKIN&>(), call_guard,
-           R"pbdoc(Copy constructor of the original OpenSMOKE class)pbdoc",
-           py::arg("rhs"))
-      .def(
-          "NumberOfSpecies", &OpenSMOKE::ThermodynamicsMap_CHEMKIN::NumberOfSpecies,
-          call_guard,
-          R"pbdoc(Function that returns the total number of species inside the mechanism)pbdoc")
-      .def(
-          "NamesOfSpecies", &OpenSMOKE::ThermodynamicsMap_CHEMKIN::NamesOfSpecies,
-          call_guard,
-          R"pbdoc(Function that returns the names of the species within the kinetic mechanism)pbdoc")
-      .def(
-          "MWs", &OpenSMOKE::ThermodynamicsMap_CHEMKIN::MWs, call_guard,
-          R"pbdoc(Function that returns a vector containing the molecular weights of the species [kg/kmol])pbdoc")
-      .def(
-          "MW", &OpenSMOKE::ThermodynamicsMap_CHEMKIN::MW, call_guard,
-          R"pbdoc(Function that returns the molecular weight of the i-th species [kg/kmol])pbdoc",
-          py::arg("i"));
+           "Copy constructor of the original OpenSMOKE class", py::arg("rhs"))
+      .def("NumberOfSpecies", &OpenSMOKE::ThermodynamicsMap_CHEMKIN::NumberOfSpecies,
+           call_guard,
+           "Function that returns the total number of species inside the mechanism")
+      .def("NamesOfSpecies", &OpenSMOKE::ThermodynamicsMap_CHEMKIN::NamesOfSpecies,
+           call_guard,
+           "Function that returns the names of the species within the kinetic mechanism")
+      .def("MWs", &OpenSMOKE::ThermodynamicsMap_CHEMKIN::MWs, call_guard,
+           "Function that returns a vector containing the molecular weights of the "
+           "species [kg/kmol]")
+      .def("MW", &OpenSMOKE::ThermodynamicsMap_CHEMKIN::MW, call_guard,
+           "Function that returns the molecular weight of the i-th species [kg/kmol]",
+           py::arg("i"))
+      .def("IndexOfSpecies", &OpenSMOKE::ThermodynamicsMap_CHEMKIN::IndexOfSpecies,
+           call_guard,
+           "Function that returns the index of the species given the name, if the "
+           "species is not present returns an error",
+           py::arg("name"))
+      .def("IndexOfElement", &OpenSMOKE::ThermodynamicsMap_CHEMKIN::IndexOfElement,
+           call_guard,
+           "Function that returns the index of the element given the name, if the "
+           "element is not present returns an error",
+           py::arg("name"))
+      .def("atomic_composition",
+           &OpenSMOKE::ThermodynamicsMap_CHEMKIN::atomic_composition, call_guard,
+           "Returns the matrix describing the elemental composition of every species. NS "
+           "x NE where NS is number of species and NE is number of elements")
+      .def("elements", &OpenSMOKE::ThermodynamicsMap_CHEMKIN::elements, call_guard,
+           "Returns the list of names of elements");
 
   // Kinetic Map (Gas Phase)
   // This interface is needed because in this way the module knows the return type of the
