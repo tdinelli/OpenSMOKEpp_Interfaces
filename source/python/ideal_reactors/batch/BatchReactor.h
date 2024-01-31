@@ -97,7 +97,7 @@ class BatchReactor {
                              const std::string& output_path = "/dev/null");
 
   // Set Ode Options
-  const void SetOdeOptions();
+  const void SetOdeOptions(const double& abs_tol, const double& rel_tol);
 
   // Getter functions
   const double& Tf() const { return Tf_; };

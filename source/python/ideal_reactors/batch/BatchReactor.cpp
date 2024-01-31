@@ -376,11 +376,11 @@ const void BatchReactor::SetBatchOptions(const bool &verbose, const bool &save_r
   batch_options_->SetNumberOfSteps_File(1);
 }
 
-const void BatchReactor::SetOdeOptions() {
+const void BatchReactor::SetOdeOptions(const double &abs_tol, const double &rel_tol) {
   ode_parameters_ = new OpenSMOKE::ODE_Parameters();
 
-  // ode_parameters_->SetRelativeTolerance(1e-12);
-  // ode_parameters_->SetAbsoluteTolerance(1e-12);
+  ode_parameters_->SetRelativeTolerance(abs_tol);
+  ode_parameters_->SetAbsoluteTolerance(rel_tol);
   // ode_parameters_->SetMinimumStep();
   // ode_parameters_->SetMaximumStep();
   // ode_parameters_->SetInitialStep();
@@ -408,6 +408,9 @@ const void BatchReactor::SetAdditionalOptions() {
 }
 
 const void BatchReactor::CleanMemory() {
+  // Cleaning state variables in order to handle easily multiple serial simulations
+  state_variables_ = 0;
+
   // At the moment clean memory handles only the additional not modified/used stuff
   delete sensitivity_options_;
   sensitivity_options_ = NULL;
