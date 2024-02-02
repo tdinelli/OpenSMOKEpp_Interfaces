@@ -409,7 +409,7 @@ const void BatchReactor::SetAdditionalOptions() {
 
 const void BatchReactor::CleanMemory() {
   // Cleaning state variables in order to handle easily multiple serial simulations
-  state_variables_ = 0;
+  // state_variables_ = 0;
 
   // At the moment clean memory handles only the additional not modified/used stuff
   delete sensitivity_options_;

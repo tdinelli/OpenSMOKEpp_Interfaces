@@ -183,7 +183,7 @@ class BatchReactor {
   OpenSMOKE::BatchReactor_Type type_;
 
   const void CeckStatusOfGasMixture() const {
-    if (state_variables_ != 2) {
+    if (state_variables_ <= 2) {
       OpenSMOKE::FatalErrorMessage(
           "The status of a gas mixture requires any 2 (and only 2) among: Temperature, "
           "Pressure and Density");
