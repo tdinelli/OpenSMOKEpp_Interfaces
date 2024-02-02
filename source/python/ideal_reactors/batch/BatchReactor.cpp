@@ -445,7 +445,10 @@ void BatchReactor::Solve() {
         *polimi_soot_, volume_, T, P_Pa, omega, global_thermal_exchange_coefficient_,
         exchange_area_, T_environment_);
 
+    batch_->SaveResults(save_);
     batch_->Solve(tStart_, tEnd_);
+    tOut_ = batch_->tOut();
+    xOut_ = batch_->xOut();
   } else if (type_ == OpenSMOKE::BATCH_REACTOR_NONISOTHERMAL_USERDEFINEDVOLUME) {
     std::cout << "USER DEFINED VOLUME batch reactor not implemented yet!" << std::endl;
     exit(-1);
@@ -500,7 +503,8 @@ const void BatchReactor::BatchReactor_wrapper(py::module_ &m) {
       .def("SetThermodynamic", &BatchReactor::SetThermodynamic, call_guard,
            "Set thermodynamic map object")
       .def("SetKinetics", &BatchReactor::SetKinetics, call_guard, "")
-      .def("SetTemperature", &BatchReactor::SetTemperature, call_guard)
+      .def("SetTemperature", &BatchReactor::SetTemperature, call_guard, "")
+      .def("SaveResults", &BatchReactor::SaveResults, call_guard, "")
       .def("SetPressure", &BatchReactor::SetPressure, call_guard, "")
       .def("SetDensity", &BatchReactor::SetDensity, call_guard, "")
       .def("SetStartTime", &BatchReactor::SetStartTime, call_guard, "")
@@ -533,5 +537,7 @@ const void BatchReactor::BatchReactor_wrapper(py::module_ &m) {
       .def("Pf", &BatchReactor::Pf, call_guard, "")
       .def("omegaf", &BatchReactor::omegaf, call_guard, "")
       .def("xf", &BatchReactor::xf, call_guard, "")
+      .def("tOut", &BatchReactor::tOut, call_guard, "")
+      .def("xOut", &BatchReactor::xOut, call_guard, "")
       .def("Solve", &BatchReactor::Solve, call_guard, "");
 }

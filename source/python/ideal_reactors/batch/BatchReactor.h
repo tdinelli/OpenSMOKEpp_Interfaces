@@ -45,6 +45,8 @@ class BatchReactor {
     kineticsMapXML_ = kinetics;
   };
 
+  const void SaveResults(const bool& save) { save_ = save; };
+
   // Temperature
   const void SetTemperature(const double& value, const std::string& units);
 
@@ -108,6 +110,10 @@ class BatchReactor {
 
   const Eigen::VectorXd& xf() const { return xf_; };
 
+  const std::vector<double>& tOut() const { return tOut_; };
+
+  const std::vector<std::vector<double>>& xOut() const { return xOut_; };
+
   // Python Wrapper
   const static void BatchReactor_wrapper(py::module_&);
 
@@ -154,6 +160,9 @@ class BatchReactor {
   Eigen::VectorXd omegaf_;
   Eigen::VectorXd xf_;
 
+  std::vector<double> tOut_;
+  std::vector<std::vector<double>> xOut_;
+
   double tEnd_;
   double tStart_;
   double volume_;
@@ -169,6 +178,7 @@ class BatchReactor {
   double T_environment_;
 
   bool verbose_;
+  bool save_;
 
   OpenSMOKE::BatchReactor_Type type_;
 
