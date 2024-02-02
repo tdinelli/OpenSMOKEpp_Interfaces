@@ -47,7 +47,7 @@ PYBIND11_MODULE(pyOpenSMOKE, m) {
            py::arg("i"))
       .def("IndexOfSpecies", &OpenSMOKE::ThermodynamicsMap_CHEMKIN::IndexOfSpecies,
            call_guard,
-           "Function that returns the index of the species given the name, if the "
+           "Function that returns the index of the species (1-based) given the name, if the "
            "species is not present returns an error",
            py::arg("name"))
       .def("IndexOfElement", &OpenSMOKE::ThermodynamicsMap_CHEMKIN::IndexOfElement,
