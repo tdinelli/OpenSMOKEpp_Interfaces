@@ -7,22 +7,21 @@ pybind11_add_module(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
     PUBLIC
-        Eigen3::Eigen
-        Boost::date_time
-        Boost::filesystem
-        Boost::program_options
-        Boost::system
-        Boost::regex
-        Boost::timer
-        Boost::chrono
-        Boost::serialization
-        BLAS::BLAS
-        blocktdsge
-        OpenSMOKEMaps
-        BatchReactor
+    Eigen3::Eigen
+    Boost::date_time
+    Boost::filesystem
+    Boost::program_options
+    Boost::system
+    Boost::regex
+    Boost::timer
+    Boost::chrono
+    Boost::serialization
+    BLAS::BLAS
+    blocktdsge
+    OpenSMOKEMaps
+    BatchReactor
 )
 
-# ${CMAKE_CURRENT_LIST_DIR}/ideal_reactors/batch
 target_include_directories(${PROJECT_NAME}
     PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}
@@ -32,17 +31,18 @@ target_include_directories(${PROJECT_NAME}
 
 target_compile_options(${PROJECT_NAME}
     PRIVATE
-        -Wno-self-assign-field
-        -Wno-unused-value
-        -Wno-mismatched-new-delete
-        -Wno-switch
-        -Wno-dangling-else
-        -Wno-return-type-c-linkage
+    -Wno-self-assign-field
+    -Wno-unused-value
+    -Wno-mismatched-new-delete
+    -Wno-switch
+    -Wno-dangling-else
+    -Wno-return-type-c-linkage
 )
 
 target_compile_definitions(${PROJECT_NAME}
-    PUBLIC
-        OPENSMOKE_USE_OPENBLAS=1
+    PRIVATE
+    OPENSMOKE_USE_OPENBLAS=1
+    VERSION_INFO=${EXAMPLE_VERSION_INFO}
 )
 
 # --------------------------------------------------------------------

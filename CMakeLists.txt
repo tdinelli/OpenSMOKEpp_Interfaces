@@ -58,13 +58,6 @@ set (BLA_STATIC ON)
 find_package(BLAS REQUIRED)
 
 # --------------------------------------------------------------------
-# Sub Modules auto-update (Maybe in the future we will use submodules)
-# --------------------------------------------------------------------
-
-# TODO
-# include(${CMAKE_MODULE_PATH}/UpdateSubmodules.cmake)
-
-# --------------------------------------------------------------------
 # Subdirectories
 # --------------------------------------------------------------------
 
