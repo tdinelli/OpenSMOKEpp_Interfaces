@@ -5,12 +5,14 @@ OpenSMOKEMaps::OpenSMOKEMaps(const std::string& kinetic_folder, const bool& verb
 
   kinetics_ = kinetic_folder_ / "kinetics.xml";
   if (!boost::filesystem::exists(kinetics_)) {
-    OpenSMOKE::FatalErrorMessage("The folder of the kinetic mechanism does not contains kinetics.xml");
+    OpenSMOKE::FatalErrorMessage(
+        "The folder of the kinetic mechanism does not contains kinetics.xml");
   }
 
   reaction_names_ = kinetic_folder_ / "reaction_names.xml";
   if (!boost::filesystem::exists(reaction_names_)) {
-    OpenSMOKE::FatalErrorMessage("The folder of the kinetic mechanism does not contains reaction_names.xml");
+    OpenSMOKE::FatalErrorMessage(
+        "The folder of the kinetic mechanism does not contains reaction_names.xml");
   }
   verbose_ = verbose;
 };
@@ -25,14 +27,18 @@ void OpenSMOKEMaps::ReadMechanism() {
 
     double tStart = OpenSMOKE::OpenSMOKEGetCpuTime();
     thermodynamicsMapXML_ = new OpenSMOKE::ThermodynamicsMap_CHEMKIN(ptree, verbose_);
-    kineticsMapXML_ = new OpenSMOKE::KineticsMap_CHEMKIN(*thermodynamicsMapXML_, ptree, verbose_);
+    kineticsMapXML_ =
+        new OpenSMOKE::KineticsMap_CHEMKIN(*thermodynamicsMapXML_, ptree, verbose_);
     double tEnd = OpenSMOKE::OpenSMOKEGetCpuTime();
 
-    std::cout << "Time to read XML file: " << tEnd - tStart << std::endl;
+    if (verbose_) {
+      std::cout << "Time to read XML file: " << tEnd - tStart << std::endl;
+    }
   }
 }
 
 const void OpenSMOKEMaps::OpenSMOKEMaps_wrapper(py::module_& m) {
+  // TODO: Improve python side docs.
   constexpr auto call_guard = py::call_guard<py::gil_scoped_release>();
   py::class_<OpenSMOKEMaps>(m, "OpenSMOKEMaps")
       .def(py::init<const std::string&, const bool&>(), call_guard, "Class constructor",

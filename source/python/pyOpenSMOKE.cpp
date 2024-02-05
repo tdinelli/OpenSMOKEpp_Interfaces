@@ -7,10 +7,14 @@
 #include "ideal_reactors/batch/BatchReactor.h"
 // clang-format on
 
+#define STRINGIFY(x) #x
+#define MACRO_STRINGIFY(x) STRINGIFY(x)
+
 namespace py = pybind11;
 constexpr auto call_guard = py::call_guard<py::gil_scoped_release>();
 
 PYBIND11_MODULE(pyOpenSMOKE, m) {
+  // TODO: Improve documentation on the python side.
   m.doc() = R"pbdoc(
         pyOpenSMOKE Documentation
         -------------------------
@@ -47,7 +51,8 @@ PYBIND11_MODULE(pyOpenSMOKE, m) {
            py::arg("i"))
       .def("IndexOfSpecies", &OpenSMOKE::ThermodynamicsMap_CHEMKIN::IndexOfSpecies,
            call_guard,
-           "Function that returns the index of the species (1-based) given the name, if the "
+           "Function that returns the index of the species (1-based) given the name, if "
+           "the "
            "species is not present returns an error",
            py::arg("name"))
       .def("IndexOfElement", &OpenSMOKE::ThermodynamicsMap_CHEMKIN::IndexOfElement,
@@ -175,8 +180,12 @@ PYBIND11_MODULE(pyOpenSMOKE, m) {
            call_guard,
            "Returns the modified Arrhenius kinetic constants in [kmol, m, s]");
 
-  // Transport map (Gas Phase) TODO
-
   // Batch Reactor
   BatchReactor::BatchReactor_wrapper(m);
+
+#ifdef VERSION_INFO
+  m.attr("__version__") = MACRO_STRINGIFY(VERSION_INFO);
+#else
+  m.attr("__version__") = "dev";
+#endif
 }

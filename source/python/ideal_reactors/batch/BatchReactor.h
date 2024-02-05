@@ -28,32 +28,72 @@
 
 namespace py = pybind11;
 
+/**
+ * @class BatchReactor
+ * @brief HighLevel wrap to the Batch reactor solver of OpenSMOKEpp. This is not a wrap
+ * around the Base class but provide the access to most of the functionalities of the
+ * BatchReactor class of OpenSMOKEpp.
+ */
 class BatchReactor {
  public:
+  /**
+   * @brief Default Constructor. Set some of the default values.
+   */
   BatchReactor();
 
+  /**
+   * @brief Default destructor.
+   */
   ~BatchReactor();
 
+  /**
+   * @brief Convenient function that calls the numerical solvers and expose the solution
+   * of the reactor.
+   */
   void Solve();
 
   // Setter functions
+  /**
+   * @brief Function that sets the thermodynamic map onto which performs the simulation.
+   * @param thermo Pointer to the thermodynamic map.
+   */
   const void SetThermodynamic(OpenSMOKE::ThermodynamicsMap_CHEMKIN* thermo) {
     thermodynamicsMapXML_ = thermo;
   };
 
+  /**
+   * @brief Function that sets the kinetics map onto which performs the simulation.
+   * @param kinetics Pointer to the kinetic map.
+   */
   const void SetKinetics(OpenSMOKE::KineticsMap_CHEMKIN* kinetics) {
     kineticsMapXML_ = kinetics;
   };
 
+  /**
+   * @brief Function that activate the storage of the entire time series solution.
+   * @param save Boolean value needed for the activation.
+   */
   const void SaveResults(const bool& save) { save_ = save; };
 
-  // Temperature
+  /**
+   * @brief Set the initial Temperature of the simulation.
+   * @param value Temperature value.
+   * @param units Unit of measurements for the Temperature, available are: K | C.
+   */
   const void SetTemperature(const double& value, const std::string& units);
 
-  // Pressure
+  /**
+   * @brief Set the initial Pressure of the simulation.
+   * @param value Pressure value.
+   * @param units Unit of measurements for the Pressure, available are: Pa | bar | atm.
+   */
   const void SetPressure(const double& value, const std::string& units);
 
-  // Density
+  /**
+   * @brief Set the density of the reacting mixture at the beginning of the simulation.
+   * @param value Density value.
+   * @param units Unit of measurements for the density, available are: kg/m3 | g/cm3.
+   */
   const void SetDensity(const double& value, const std::string& units);
 
   // Composition
@@ -183,6 +223,7 @@ class BatchReactor {
   OpenSMOKE::BatchReactor_Type type_;
 
   const void CeckStatusOfGasMixture() const {
+    // TODO refactor this controller.
     if (state_variables_ <= 2) {
       OpenSMOKE::FatalErrorMessage(
           "The status of a gas mixture requires any 2 (and only 2) among: Temperature, "
