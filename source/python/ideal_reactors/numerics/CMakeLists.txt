@@ -2,7 +2,8 @@ project (blocktdsge
     DESCRIPTION
     "TODO"
     LANGUAGES 
-    C CXX Fortran)
+    C CXX Fortran
+)
 
 # --- Set module path in order to use custom CMake modules
 set (PROJECT_SOURCE_DIR ${OPENSMOKEPPSOLVERS_INCLUDE_DIR}/numerics/blocktdsge)

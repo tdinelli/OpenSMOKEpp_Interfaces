@@ -15,8 +15,8 @@ Repository containing my high level programming language interfaces (e.g. [pytho
 ### Requirements
 - **CMake** (https://cmake.org/).
 - **Ninja** (https://ninja-build.org/).
-- **OpenSMOKEpp** (https://www.opensmokepp.polimi.it/) distibuted under request contact Alberto Cuoci <alberto.cuoci@polimi.it>.
-- **OpenSMOKEppSolvers** (https://www.opensmokepp.polimi.it/) distibuted under request contact Alberto Cuoci <alberto.cuoci@polimi.it>.
+- **OpenSMOKEpp** (https://www.opensmokepp.polimi.it/) distributed under request contact Alberto Cuoci <alberto.cuoci@polimi.it>.
+- **OpenSMOKEppSolvers** (https://www.opensmokepp.polimi.it/) distributed under request contact Alberto Cuoci <alberto.cuoci@polimi.it>.
 - **Eigen3** (https://eigen.tuxfamily.org/).
 - **Boost** (https://www.boost.org/).
 - **OpenBLAS** (https://www.openblas.net/).

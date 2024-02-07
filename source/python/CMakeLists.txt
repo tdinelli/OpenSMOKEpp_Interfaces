@@ -24,14 +24,13 @@ target_link_libraries(${PROJECT_NAME}
 
 target_include_directories(${PROJECT_NAME}
     PUBLIC
-        ${CMAKE_CURRENT_LIST_DIR}
-        ${OPENSMOKE_INCLUDE_DIR}
-        ${BLAS_ROOT}/include
+    ${CMAKE_CURRENT_LIST_DIR}
+    ${OPENSMOKE_INCLUDE_DIR}
+    ${BLAS_ROOT}/include
 )
 
 target_compile_options(${PROJECT_NAME}
     PRIVATE
-    -Wno-self-assign-field
     -Wno-unused-value
     -Wno-mismatched-new-delete
     -Wno-switch

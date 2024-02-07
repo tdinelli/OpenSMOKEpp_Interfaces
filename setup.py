@@ -138,7 +138,7 @@ class CMakeBuild(build_ext):
 setup(
     name="pyOpenSMOKE",
     version="0.0.1",
-    author="Timote Dinelli",
+    author="Timoteo Dinelli",
     author_email="timoteo.dinelli@polimi.it",
     description="High level programming languages interface to OpenSMOKEpp",
     long_description=long_description,

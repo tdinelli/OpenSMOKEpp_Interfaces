@@ -40,7 +40,6 @@ target_compile_options(BatchReactor
     -Wno-unused-value
     -Wno-mismatched-new-delete
     -Wno-switch
-    # -Wno-self-assign-field
     -Wno-dangling-else
     -Wno-return-type-c-linkage
 )
