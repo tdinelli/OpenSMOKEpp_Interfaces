@@ -52,12 +52,12 @@ class CMakeBuild(build_ext):
         # from Python.
         cmake_args = [
             f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={extdir}{os.sep}",
-            f"-D CMAKE_CXX_COMPILER:PATH={os.environ["CXX"]}",
-            f"-D OpenSMOKEpp_ROOT:PATH={os.environ["OpenSMOKEpp_ROOT"]}",
-            f"-D OpenSMOKEppSolvers_ROOT:PATH={os.environ["OpenSMOKEppSolvers_ROOT"]}",
-            f"-D Boost_ROOT:PATH={os.environ["Boost_ROOT"]}",
-            f"-D BLAS_ROOT:PATH={os.environ["BLAS_ROOT"]}",
-            f"-D Eigen3_DIR:PATH={os.environ["Eigen3_ROOT"]}",
+            f"-DCMAKE_CXX_COMPILER:PATH={os.environ["CXX"]}",
+            f"-DOpenSMOKEpp_ROOT:PATH={os.environ["OpenSMOKEpp_ROOT"]}",
+            f"-DOpenSMOKEppSolvers_ROOT:PATH={os.environ["OpenSMOKEppSolvers_ROOT"]}",
+            f"-DBoost_ROOT:PATH={os.environ["Boost_ROOT"]}",
+            f"-DBLAS_ROOT:PATH={os.environ["BLAS_ROOT"]}",
+            f"-DEigen3_DIR:PATH={os.environ["Eigen3_ROOT"]}",
         ]
         build_args = []
         # Adding CMake arguments set as environment variable

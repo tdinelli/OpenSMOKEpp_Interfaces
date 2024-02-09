@@ -180,6 +180,21 @@ PYBIND11_MODULE(pyOpenSMOKE, m) {
            call_guard,
            "Returns the modified Arrhenius kinetic constants in [kmol, m, s]");
 
+  // Transport Map (Gas Phase)
+  // This interface is needed because in this way the module knows the return type of the
+  // getter functions that are implemented in OpenSMOKEMaps_wrapper and is able to convert
+  // the Object into a python object
+  py::class_<OpenSMOKE::TransportPropertiesMap_CHEMKIN>(m, "TransportPropertiesMap_CHEMKIN")
+      .def(py::init<const OpenSMOKE::TransportPropertiesMap_CHEMKIN&>(), call_guard,
+           R"pbdoc(Copy constructor of the original OpenSMOKE class)pbdoc",
+           py::arg("rhs"))
+      .def("SetTemperature", &OpenSMOKE::TransportPropertiesMap_CHEMKIN::SetTemperature,
+           call_guard)
+      .def("SetPressure", &OpenSMOKE::TransportPropertiesMap_CHEMKIN::SetPressure,
+           call_guard)
+      .def("SetCoefficients", &OpenSMOKE::TransportPropertiesMap_CHEMKIN::SetCoefficients,
+           call_guard);
+
   // Batch Reactor
   BatchReactor::BatchReactor_wrapper(m);
 

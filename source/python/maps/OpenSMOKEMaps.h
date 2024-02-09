@@ -31,10 +31,13 @@ class OpenSMOKEMaps {
    *
    * @param kinetic_folder string representing the path to the folder containing the
    * reaction_names.xml and kinetics.xml files.
+   * @param transport boolean value that activate the generation of the transport
+   * properties map
    * @param verbose boolean value to set the logging of relevant informations when parsing
    * the mechanism.
    */
-  OpenSMOKEMaps(const std::string& kinetic_folder, const bool& verbose);
+  OpenSMOKEMaps(const std::string& kinetic_folder, const bool& transport,
+                const bool& verbose);
 
   /**
    * @brief Default destructor of the class.
@@ -63,6 +66,15 @@ class OpenSMOKEMaps {
   const OpenSMOKE::KineticsMap_CHEMKIN* const kineticsMapXML() { return kineticsMapXML_; }
 
   /**
+   * @brief Getter function pointing to the object representing the transport map.
+   *
+   * @return Pointer to the transport map.
+   */
+  const OpenSMOKE::TransportPropertiesMap_CHEMKIN* const transportMapXML() {
+    return transportMapXML_;
+  }
+
+  /**
    * @brief Function that handle the wrap to the python objects. This is here in order to
    * speed up the compilation process. For reference see:
    * https://pybind11.readthedocs.io/en/stable/advanced/misc.html#partitioning-code-over-multiple-extension-modules
@@ -75,9 +87,14 @@ class OpenSMOKEMaps {
 
   OpenSMOKE::KineticsMap_CHEMKIN* kineticsMapXML_;  //!< Raw pointer to the kinetic map.
 
+  OpenSMOKE::TransportPropertiesMap_CHEMKIN*
+      transportMapXML_;  //!< Raw pointer to the transport map.
+
   boost::filesystem::path kinetics_;  //!< Path to the kinetics.xml file.
 
   boost::filesystem::path reaction_names_;  //!< Path to the reaction_names.xml file.
 
   bool verbose_;  //!< Variable to control the verbosity of the reading.
+
+  bool transport_;  //!< Whether to process or not the transport map.
 };
