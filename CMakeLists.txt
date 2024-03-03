@@ -4,12 +4,11 @@
 
 cmake_minimum_required(VERSION 3.20)
 
-project(
-    pyOpenSMOKE
-    VERSION 0.1.0
-    DESCRIPTION
-    "High level interfaces to the OpenSMOKEpp framework"
-    LANGUAGES CXX
+project(pyOpenSMOKE
+  VERSION 0.1.0
+  DESCRIPTION
+  "High level interfaces to the OpenSMOKEpp framework"
+  LANGUAGES CXX
 )
 
 # --- Set module path in order to use custom CMake modules
@@ -22,25 +21,25 @@ set(CMAKE_COLOR_MAKEFILE ON)
 # Compilation options
 # --------------------------------------------------------------------
 
-#--------------------------------------------------------------------
+# --------------------------------------------------------------------
 # Compulsory (external) libraries
-#--------------------------------------------------------------------
+# --------------------------------------------------------------------
 
 # --- Eigen (Compulsory)
 find_package(Eigen3 REQUIRED)
 
 # --- Boost (Compulsory)
-find_package(Boost
-    REQUIRED
-    COMPONENTS
-    date_time
-    filesystem
-    program_options
-    system
-    regex
-    timer
-    chrono
-    serialization
+# --- TODO Clean boost lib I don't think we need all of them
+find_package(Boost REQUIRED
+  COMPONENTS
+  date_time
+  filesystem
+  program_options
+  system
+  regex
+  timer
+  chrono
+  serialization
 )
 
 # --- pybind11 (Compulsory)

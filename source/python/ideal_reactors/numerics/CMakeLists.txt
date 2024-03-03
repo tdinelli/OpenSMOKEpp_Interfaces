@@ -1,6 +1,6 @@
 project (blocktdsge
     DESCRIPTION
-    "TODO"
+    "LU decomposition routine for tridiagonal block matrix"
     LANGUAGES 
     C CXX Fortran
 )

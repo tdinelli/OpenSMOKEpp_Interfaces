@@ -1,16 +1,22 @@
 # OpenSMOKEpp (High Level) interfaces
 
-Repository containing my high level programming language interfaces (e.g. [python](source/python), Julia (One Day)) for OpenSMOKEpp.
+Repository containing my high level programming language interfaces (e.g. [python](source/python), Julia (one day)) for OpenSMOKEpp.
 
 ## OpenSMOKEpp interfaced classes
 
-- Gas Phase Thermodynamic map.
 - Gas Phase kinetic map.
-- Batch Reactor
+- Gas Phase Thermodynamic properties map.
+- Gas Phase Transport properties map. (**WIP**)
+- Batch Reactor.
+
+## EXAMPLES
+**Incoming**
 
 ## INSTALLATION
 
-**Disclaimer** the package is still under active development for this reason at the moment has been tested only on my personal PC and in some other controlled environments, it is not guaranteed to work as is.
+**Disclaimer** the package is still under active development for this reason at the moment has been
+tested only on my personal PC and in some other controlled environments, it is not guaranteed to
+work as is.
 
 ### Requirements
 - **CMake** (https://cmake.org/).
