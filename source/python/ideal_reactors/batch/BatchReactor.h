@@ -1,6 +1,5 @@
 #pragma once
 
-// clang-format off
 // OpenSMOKE++ Definitions
 #include <OpenSMOKEpp>
 
@@ -24,7 +23,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/eigen.h>
-// clang-format on
 
 namespace py = pybind11;
 
@@ -134,8 +132,7 @@ class BatchReactor {
   const void SetType(const std::string& value);
 
   // Set Batch Output options
-  const void SetBatchOptions(const bool& verbose = false,
-                             const bool& save_results = false,
+  const void SetBatchOptions(const bool& verbose = false, const bool& save_results = false,
                              const std::string& output_path = "/dev/null");
 
   // Set Ode Options

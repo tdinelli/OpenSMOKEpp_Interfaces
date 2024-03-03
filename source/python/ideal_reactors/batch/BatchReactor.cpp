@@ -1,8 +1,8 @@
 #include "BatchReactor.h"
 
-#include <memory>
-
-#include "math/OpenSMOKEFunctions.h"
+// #include <memory>
+//
+// #include "math/OpenSMOKEFunctions.h"
 
 BatchReactor::BatchReactor() {
   tStart_ = 0.;  // default 0
@@ -60,9 +60,9 @@ const void BatchReactor::SetDensity(const double &value, const std::string &unit
   density_assigned_ = true;
 }
 
-const void BatchReactor::SetInitialComposition(
-    const std::string &initial_composition_type, const std::vector<std::string> &names,
-    const std::vector<double> &values) {
+const void BatchReactor::SetInitialComposition(const std::string &initial_composition_type,
+                                               const std::vector<std::string> &names,
+                                               const std::vector<double> &values) {
   if (initial_composition_type == "MoleFractions") {
     const double sum = std::accumulate(values.begin(), values.end(), 0.);
     if (sum < (1. - 1e-6) || sum > (1. + 1e-6)) {
@@ -108,8 +108,7 @@ const void BatchReactor::SetInitialComposition(
 }
 
 const void BatchReactor::SetInitialComposition(
-    const std::string &initial_composition_type,
-    const std::vector<double> &equivalence_ratios,
+    const std::string &initial_composition_type, const std::vector<double> &equivalence_ratios,
     const std::string &fuel_composition_type, const std::vector<std::string> &fuel_names,
     std::vector<double> &values_fuel, const std::string &oxidizer_composition_type,
     std::vector<std::string> &oxidizer_names, std::vector<double> &values_oxidizer) {
@@ -135,8 +134,7 @@ const void BatchReactor::SetInitialComposition(
         OpenSMOKE::FatalErrorMessage("The fuel mass fractions must sum to 1.");
       }
 
-      OpenSMOKE::OpenSMOKEVectorDouble omega_fuel(
-          thermodynamicsMapXML_->NumberOfSpecies());
+      OpenSMOKE::OpenSMOKEVectorDouble omega_fuel(thermodynamicsMapXML_->NumberOfSpecies());
       for (unsigned int i = 0; i < fuel_names.size(); i++) {
         omega_fuel[thermodynamicsMapXML_->IndexOfSpecies(fuel_names[i])] =
             values_fuel[i] / sum;
@@ -153,8 +151,7 @@ const void BatchReactor::SetInitialComposition(
       // TODO
       // dictionary.ReadOption("@FuelMoles", names_fuel, values_fuel);
     } else if (fuel_composition_type == "FuelMasses") {
-      OpenSMOKE::OpenSMOKEVectorDouble omega_fuel(
-          thermodynamicsMapXML_->NumberOfSpecies());
+      OpenSMOKE::OpenSMOKEVectorDouble omega_fuel(thermodynamicsMapXML_->NumberOfSpecies());
       for (unsigned int i = 0; i < fuel_names.size(); i++) {
         omega_fuel[thermodynamicsMapXML_->IndexOfSpecies(fuel_names[i])] = values_fuel[i];
       }
@@ -173,8 +170,7 @@ const void BatchReactor::SetInitialComposition(
     }
 
     if (oxidizer_composition_type == "OxidizerMoleFractions") {
-      const double sum =
-          std::accumulate(values_oxidizer.begin(), values_oxidizer.end(), 0.);
+      const double sum = std::accumulate(values_oxidizer.begin(), values_oxidizer.end(), 0.);
       if (sum < (1. - 1e-6) || sum > (1. + 1e-6)) {
         OpenSMOKE::FatalErrorMessage("The oxidizer mass fractions must sum to 1.");
       }
@@ -183,8 +179,7 @@ const void BatchReactor::SetInitialComposition(
         values_oxidizer[i] /= sum;
       }
     } else if (oxidizer_composition_type == "OxidizerMassFractions") {
-      const double sum =
-          std::accumulate(values_oxidizer.begin(), values_oxidizer.end(), 0.);
+      const double sum = std::accumulate(values_oxidizer.begin(), values_oxidizer.end(), 0.);
       if (sum < (1. - 1e-6) || sum > (1. + 1e-6)) {
         OpenSMOKE::FatalErrorMessage("The oxidizer mass fractions must sum to 1.");
       }
@@ -197,8 +192,7 @@ const void BatchReactor::SetInitialComposition(
       }
 
       double MW_oxidizer;
-      OpenSMOKE::OpenSMOKEVectorDouble x_oxidizer(
-          thermodynamicsMapXML_->NumberOfSpecies());
+      OpenSMOKE::OpenSMOKEVectorDouble x_oxidizer(thermodynamicsMapXML_->NumberOfSpecies());
       thermodynamicsMapXML_->MoleFractions_From_MassFractions(
           x_oxidizer.GetHandle(), MW_oxidizer, omega_oxidizer.GetHandle());
       for (unsigned int i = 0; i < oxidizer_names.size(); i++) {
@@ -217,8 +211,7 @@ const void BatchReactor::SetInitialComposition(
       }
 
       double MW_oxidizer;
-      OpenSMOKE::OpenSMOKEVectorDouble x_oxidizer(
-          thermodynamicsMapXML_->NumberOfSpecies());
+      OpenSMOKE::OpenSMOKEVectorDouble x_oxidizer(thermodynamicsMapXML_->NumberOfSpecies());
       thermodynamicsMapXML_->MoleFractions_From_MassFractions(
           x_oxidizer.GetHandle(), MW_oxidizer, omega_oxidizer.GetHandle());
       for (unsigned int i = 0; i < oxidizer_names.size(); i++) {
@@ -234,9 +227,8 @@ const void BatchReactor::SetInitialComposition(
       values_oxidizer[1] = 0.79;
     }
 
-    std::vector<double> values =
-        thermodynamicsMapXML_->GetMoleFractionsFromEquivalenceRatio(
-            equivalence_ratio, fuel_names, values_fuel, oxidizer_names, values_oxidizer);
+    std::vector<double> values = thermodynamicsMapXML_->GetMoleFractionsFromEquivalenceRatio(
+        equivalence_ratio, fuel_names, values_fuel, oxidizer_names, values_oxidizer);
 
     const double sum = std::accumulate(values.begin(), values.end(), 0.);
     if (sum < (1. - 1e-6) || sum > (1. + 1e-6)) {
@@ -323,8 +315,8 @@ const void BatchReactor::SetExchangeArea(const double &value, const std::string 
   }
 }
 
-const void BatchReactor::Set_global_thermal_exchange_coefficient(
-    const double &value, const std::string &units) {
+const void BatchReactor::Set_global_thermal_exchange_coefficient(const double &value,
+                                                                 const std::string &units) {
   if (units == "W/m2/K") {
     global_thermal_exchange_coefficient_ = value;
   } else if (units == "W/m2/C") {
@@ -441,9 +433,9 @@ void BatchReactor::Solve() {
   if (type_ == OpenSMOKE::BATCH_REACTOR_NONISOTHERMAL_CONSTANTV) {
     batch_ = std::make_unique<OpenSMOKE::BatchReactor_NonIsothermal_ConstantVolume>(
         *thermodynamicsMapXML_, *kineticsMapXML_, *ode_parameters_, *batch_options_,
-        *onTheFlyROPA_, *onTheFlyCEMA_, *on_the_fly_post_processing_, *idt_,
-        *polimi_soot_, volume_, T, P_Pa, omega, global_thermal_exchange_coefficient_,
-        exchange_area_, T_environment_);
+        *onTheFlyROPA_, *onTheFlyCEMA_, *on_the_fly_post_processing_, *idt_, *polimi_soot_,
+        volume_, T, P_Pa, omega, global_thermal_exchange_coefficient_, exchange_area_,
+        T_environment_);
 
     batch_->SaveResults(save_);
     batch_->Solve(tStart_, tEnd_);
@@ -455,22 +447,22 @@ void BatchReactor::Solve() {
   } else if (type_ == OpenSMOKE::BATCH_REACTOR_ISOTHERMAL_CONSTANTV) {
     batch_ = std::make_unique<OpenSMOKE::BatchReactor_Isothermal_ConstantVolume>(
         *thermodynamicsMapXML_, *kineticsMapXML_, *ode_parameters_, *batch_options_,
-        *onTheFlyROPA_, *onTheFlyCEMA_, *on_the_fly_post_processing_, *idt_,
-        *polimi_soot_, volume_, T, P_Pa, omega);
+        *onTheFlyROPA_, *onTheFlyCEMA_, *on_the_fly_post_processing_, *idt_, *polimi_soot_,
+        volume_, T, P_Pa, omega);
 
     batch_->Solve(tStart_, tEnd_);
   } else if (type_ == OpenSMOKE::BATCH_REACTOR_NONISOTHERMAL_CONSTANTP) {
     batch_ = std::make_unique<OpenSMOKE::BatchReactor_NonIsothermal_ConstantPressure>(
         *thermodynamicsMapXML_, *kineticsMapXML_, *ode_parameters_, *batch_options_,
-        *onTheFlyROPA_, *onTheFlyCEMA_, *on_the_fly_post_processing_, *idt_,
-        *polimi_soot_, volume_, T, P_Pa, omega, global_thermal_exchange_coefficient_,
-        exchange_area_, T_environment_);
+        *onTheFlyROPA_, *onTheFlyCEMA_, *on_the_fly_post_processing_, *idt_, *polimi_soot_,
+        volume_, T, P_Pa, omega, global_thermal_exchange_coefficient_, exchange_area_,
+        T_environment_);
     batch_->Solve(tStart_, tEnd_);
   } else if (type_ == OpenSMOKE::BATCH_REACTOR_ISOTHERMAL_CONSTANTP) {
     batch_ = std::make_unique<OpenSMOKE::BatchReactor_Isothermal_ConstantPressure>(
         *thermodynamicsMapXML_, *kineticsMapXML_, *ode_parameters_, *batch_options_,
-        *onTheFlyROPA_, *onTheFlyCEMA_, *on_the_fly_post_processing_, *idt_,
-        *polimi_soot_, volume_, T, P_Pa, omega);
+        *onTheFlyROPA_, *onTheFlyCEMA_, *on_the_fly_post_processing_, *idt_, *polimi_soot_,
+        volume_, T, P_Pa, omega);
     batch_->Solve(tStart_, tEnd_);
   } else {
     OpenSMOKE::FatalErrorMessage("Unknown batch reactor type or type not setted");
@@ -513,19 +505,19 @@ const void BatchReactor::BatchReactor_wrapper(py::module_ &m) {
       .def("SetExchangeArea", &BatchReactor::SetExchangeArea, call_guard, "")
       .def("Set_global_thermal_exchange_coefficient",
            &BatchReactor::Set_global_thermal_exchange_coefficient, call_guard, "")
-      .def("SetEnvironmentTemperature", &BatchReactor::SetEnvironmentTemperature,
-           call_guard, "")
+      .def("SetEnvironmentTemperature", &BatchReactor::SetEnvironmentTemperature, call_guard,
+           "")
       .def("SetType", &BatchReactor::SetType, call_guard, "")
       .def("SetBatchOptions", &BatchReactor::SetBatchOptions, call_guard, "",
            py::arg("verbose") = false, py::arg("save_results") = false,
            py::arg("output_path") = "/dev/null")
       .def("SetOdeOptions", &BatchReactor::SetOdeOptions, call_guard, "")
       .def("SetAdditionalOptions", &BatchReactor::SetAdditionalOptions, call_guard, "")
-      .def("SetInitialComposition",
-           py::overload_cast<const std::string &, const std::vector<std::string> &,
-                             const std::vector<double> &>(
-               &BatchReactor::SetInitialComposition),
-           call_guard, "")
+      .def(
+          "SetInitialComposition",
+          py::overload_cast<const std::string &, const std::vector<std::string> &,
+                            const std::vector<double> &>(&BatchReactor::SetInitialComposition),
+          call_guard, "")
       .def("SetInitialComposition",
            py::overload_cast<const std::string &, const std::vector<double> &,
                              const std::string &, const std::vector<std::string> &,

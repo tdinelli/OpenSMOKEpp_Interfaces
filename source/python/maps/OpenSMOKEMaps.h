@@ -1,6 +1,5 @@
 #pragma once
 
-// clang-format off
 #include <OpenSMOKEpp>
 #include <maps/Maps_CHEMKIN>
 
@@ -8,7 +7,6 @@
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-// clang-format on
 
 namespace py = pybind11;
 
@@ -36,8 +34,7 @@ class OpenSMOKEMaps {
    * @param verbose boolean value to set the logging of relevant informations when parsing
    * the mechanism.
    */
-  OpenSMOKEMaps(const std::string& kinetic_folder, const bool& transport,
-                const bool& verbose);
+  OpenSMOKEMaps(const std::string& kinetic_folder, const bool& transport, const bool& verbose);
 
   /**
    * @brief Default destructor of the class.
