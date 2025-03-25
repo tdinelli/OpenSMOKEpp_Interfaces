@@ -1,21 +1,22 @@
-project (blocktdsge
-    DESCRIPTION
-    "LU decomposition routine for tridiagonal block matrix"
-    LANGUAGES 
-    C CXX Fortran
-)
+# ----------------------------------------------------------------------------
+# Tridiagonal Block matrix decomposition
+# ----------------------------------------------------------------------------
+set(BLOCKTDSGE_SOURCE_DIR ${PROJECT_SOURCE_DIR}/numerics/blocktdsge)
 
-# --- Set module path in order to use custom CMake modules
-set (PROJECT_SOURCE_DIR ${OPENSMOKEPPSOLVERS_INCLUDE_DIR}/numerics/blocktdsge)
-
-# --- Controlling fortran c++ interoperability
 include(FortranCInterface)
-FortranCInterface_VERIFY(CXX)
+fortrancinterface_verify(CXX)
 
 set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -O3 -m64")
 
-add_library(blocktdsge
-    ${PROJECT_SOURCE_DIR}/dgeblttrf.f
-    ${PROJECT_SOURCE_DIR}/dgeblttrs.f
-    ${PROJECT_SOURCE_DIR}/aux.f
+set(BLOCKTDSGE_SOURCE_DIR ${OPENSMOKEPPSOLVERS_INCLUDE_DIR}/numerics/blocktdsge)
+add_library(
+  blocktdsge
+  STATIC
+  ${BLOCKTDSGE_SOURCE_DIR}/dgeblttrf.f
+  ${BLOCKTDSGE_SOURCE_DIR}/dgeblttrs.f
+  ${BLOCKTDSGE_SOURCE_DIR}/aux.f
 )
+# ----------------------------------------------------------------------------
+# Compile definitions to handle additional libraries
+# ----------------------------------------------------------------------------
+apply_opensmoke_options(blocktdsge DISABLE_ALL)

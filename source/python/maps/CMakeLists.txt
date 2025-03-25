@@ -1,49 +1,32 @@
-add_library(OpenSMOKEMaps SHARED "")
+add_library(OpenSMOKEMaps SHARED OpenSMOKEMaps.cpp)
 
-target_sources(OpenSMOKEMaps
-  PRIVATE
-  OpenSMOKEMaps.cpp
-  PUBLIC
-  OpenSMOKEMaps.h
+target_link_libraries(
+  OpenSMOKEMaps
+  PUBLIC # Eigen
+         Eigen3::Eigen
+         # Boost
+         Boost::date_time
+         Boost::filesystem
+         Boost::program_options
+         Boost::system
+         Boost::regex
+         Boost::timer
+         Boost::chrono
+         # pybind
+         pybind11::pybind11
+         pybind11::python_link_helper
+         pybind11::lto
+         # Linear Algebra
+         ${LINEAR_ALGEBRA_LIB}
 )
 
-target_link_libraries(OpenSMOKEMaps
-  PUBLIC
-  Eigen3::Eigen
-  Boost::date_time
-  Boost::filesystem
-  Boost::program_options
-  Boost::system
-  Boost::regex
-  Boost::timer
-  Boost::chrono
-  Boost::serialization
-  pybind11::pybind11
-  pybind11::python_link_helper
-  pybind11::thin_lto
-  pybind11::lto
-)
-
-target_include_directories(OpenSMOKEMaps
-  PUBLIC
-  ${CMAKE_CURRENT_LIST_DIR}
-  PRIVATE
-  ${OPENSMOKE_INCLUDE_DIR}
-)
-
-target_compile_options(OpenSMOKEMaps
-  PRIVATE
-  -Wno-unused-value
-  -Wno-mismatched-new-delete
-  -Wno-switch
+target_include_directories(
+  OpenSMOKEMaps
+  PUBLIC ${CMAKE_CURRENT_LIST_DIR}
+  PRIVATE ${OPENSMOKE_INCLUDE_DIR}
 )
 
 # --------------------------------------------------------------------
 # Installing options
 # --------------------------------------------------------------------
-
-install(TARGETS
-  OpenSMOKEMaps
-  DESTINATION
-  ${CMAKE_INSTALL_PREFIX}
-)
+install(TARGETS OpenSMOKEMaps DESTINATION ${CMAKE_INSTALL_PREFIX})

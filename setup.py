@@ -8,6 +8,7 @@ from pathlib import Path
 from setuptools import Extension, setup
 from setuptools.command.build_ext import build_ext
 
+
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
@@ -52,12 +53,12 @@ class CMakeBuild(build_ext):
         # from Python.
         cmake_args = [
             f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={extdir}{os.sep}",
-            f"-DCMAKE_CXX_COMPILER:PATH={os.environ["CXX"]}",
-            f"-DOpenSMOKEpp_ROOT:PATH={os.environ["OpenSMOKEpp_ROOT"]}",
-            f"-DOpenSMOKEppSolvers_ROOT:PATH={os.environ["OpenSMOKEppSolvers_ROOT"]}",
-            f"-DBoost_ROOT:PATH={os.environ["Boost_ROOT"]}",
-            f"-DBLAS_ROOT:PATH={os.environ["BLAS_ROOT"]}",
-            f"-DEigen3_DIR:PATH={os.environ["Eigen3_ROOT"]}",
+            f"-DCMAKE_CXX_COMPILER:PATH={os.environ['CXX']}",
+            f"-DOpenSMOKEpp_ROOT:PATH={os.environ['OpenSMOKEpp_ROOT']}",
+            f"-DOpenSMOKEppSolvers_ROOT:PATH={os.environ['OpenSMOKEppSolvers_ROOT']}",
+            f"-DBoost_ROOT:PATH={os.environ['Boost_ROOT']}",
+            f"-DBLAS_ROOT:PATH={os.environ['BLAS_ROOT']}",
+            f"-DEigen3_DIR:PATH={os.environ['Eigen3_ROOT']}",
         ]
         build_args = []
         # Adding CMake arguments set as environment variable
@@ -101,9 +102,7 @@ class CMakeBuild(build_ext):
 
             # Multi-config generators have a different way to specify configs
             if not single_config:
-                cmake_args += [
-                    f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{cfg.upper()}={extdir}"
-                ]
+                cmake_args += [f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{cfg.upper()}={extdir}"]
                 build_args += ["--config", cfg]
 
         if sys.platform.startswith("darwin"):
@@ -125,19 +124,15 @@ class CMakeBuild(build_ext):
         if not build_temp.exists():
             build_temp.mkdir(parents=True)
 
-        subprocess.run(
-            ["cmake", ext.sourcedir, *cmake_args], cwd=build_temp, check=True
-        )
-        subprocess.run(
-            ["cmake", "--build", ".", *build_args], cwd=build_temp, check=True
-        )
+        subprocess.run(["cmake", ext.sourcedir, *cmake_args], cwd=build_temp, check=True)
+        subprocess.run(["cmake", "--build", ".", *build_args], cwd=build_temp, check=True)
 
 
 # The information here can also be placed in setup.cfg - better separation of
 # logic and declaration, and simpler if you include description/version in a file.
 setup(
     name="pyOpenSMOKE",
-    version="0.0.1",
+    version="0.2.0",
     author="Timoteo Dinelli",
     author_email="timoteo.dinelli@polimi.it",
     description="High level programming languages interface to OpenSMOKEpp",

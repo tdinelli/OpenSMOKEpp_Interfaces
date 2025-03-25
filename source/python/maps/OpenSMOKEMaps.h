@@ -60,7 +60,9 @@ class OpenSMOKEMaps {
    *
    * @return Pointer to the kinetics map.
    */
-  const OpenSMOKE::KineticsMap_CHEMKIN* const kineticsMapXML() { return kineticsMapXML_; }
+  const OpenSMOKE::KineticsMap_CHEMKIN* const kineticsMapXML() {
+    return kineticsMapXML_;
+  }
 
   /**
    * @brief Getter function pointing to the object representing the transport map.
@@ -79,13 +81,11 @@ class OpenSMOKEMaps {
   const static void OpenSMOKEMaps_wrapper(py::module_&);
 
  private:
-  OpenSMOKE::ThermodynamicsMap_CHEMKIN*
-      thermodynamicsMapXML_;  //!< Raw pointer to the thermodynamic map.
+  OpenSMOKE::ThermodynamicsMap_CHEMKIN* thermodynamicsMapXML_;  //!< Raw pointer to the thermodynamic map.
 
   OpenSMOKE::KineticsMap_CHEMKIN* kineticsMapXML_;  //!< Raw pointer to the kinetic map.
 
-  OpenSMOKE::TransportPropertiesMap_CHEMKIN*
-      transportMapXML_;  //!< Raw pointer to the transport map.
+  OpenSMOKE::TransportPropertiesMap_CHEMKIN* transportMapXML_;  //!< Raw pointer to the transport map.
 
   boost::filesystem::path kinetics_;  //!< Path to the kinetics.xml file.
 

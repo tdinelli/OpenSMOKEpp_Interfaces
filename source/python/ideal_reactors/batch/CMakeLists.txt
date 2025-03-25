@@ -1,60 +1,34 @@
-add_library(BatchReactor SHARED "")
+add_library(BatchReactor SHARED BatchReactor.cpp)
 
-target_sources(BatchReactor
-  PRIVATE
-  BatchReactor.cpp
-  PUBLIC
-  BatchReactor.h
+target_link_libraries(
+  BatchReactor
+  PUBLIC # Eigen
+         Eigen3::Eigen
+         # Boost
+         Boost::date_time
+         Boost::filesystem
+         Boost::program_options
+         Boost::system
+         Boost::regex
+         Boost::timer
+         Boost::chrono
+         # BLOCKTDSOLVER
+         blocktdsge
+         # Linear Algebra
+         ${LINEAR_ALGEBRA_LIB}
+         # pybind
+         pybind11::pybind11
+         pybind11::python_link_helper
+         pybind11::lto
 )
 
-target_link_libraries(BatchReactor
-  PUBLIC
-  Eigen3::Eigen
-  Boost::date_time
-  Boost::filesystem
-  Boost::program_options
-  Boost::system
-  Boost::regex
-  Boost::timer
-  Boost::chrono
-  Boost::serialization
-  BLAS::BLAS
-  pybind11::pybind11
-  pybind11::python_link_helper
-  pybind11::thin_lto
-  pybind11::lto
-  PRIVATE
-  blocktdsge
+target_include_directories(
+  BatchReactor PUBLIC ${CMAKE_CURRENT_LIST_DIR} ${OPENSMOKE_INCLUDE_DIR} ${LINEAR_ALGEBRA_INCLUDE}
 )
 
-target_include_directories(BatchReactor
-  PUBLIC
-  ${CMAKE_CURRENT_LIST_DIR}
-  PRIVATE
-  ${OPENSMOKE_INCLUDE_DIR}
-  ${BLAS_ROOT}/include
-)
-
-target_compile_options(BatchReactor
-  PRIVATE
-  -Wno-unused-value
-  -Wno-mismatched-new-delete
-  -Wno-switch
-  -Wno-dangling-else
-  -Wno-return-type-c-linkage
-)
-
-target_compile_definitions(BatchReactor
-  PRIVATE
-  OPENSMOKE_USE_OPENBLAS=1
-)
+apply_opensmoke_options(BatchReactor)
 
 # --------------------------------------------------------------------
 # Installing options
 # --------------------------------------------------------------------
-
-install(TARGETS
-  BatchReactor
-  DESTINATION
-  ${CMAKE_INSTALL_PREFIX}
-)  
+install(TARGETS BatchReactor DESTINATION ${CMAKE_INSTALL_PREFIX})

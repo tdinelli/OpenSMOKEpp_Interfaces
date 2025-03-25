@@ -1,75 +1,114 @@
-#--------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Preliminary Settings
-#--------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+cmake_minimum_required(VERSION 3.16)
 
-cmake_minimum_required(VERSION 3.20)
-
-project(pyOpenSMOKE
+project(
+  pyOpenSMOKE
+  DESCRIPTION "OpenSMOKEpp (python) Interface"
+  LANGUAGES C CXX Fortran
   VERSION 0.1.0
-  DESCRIPTION
-  "High level interfaces to the OpenSMOKEpp framework"
-  LANGUAGES CXX
 )
 
-# --- Set module path in order to use custom CMake modules
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-set(CMAKE_COLOR_MAKEFILE ON)
+# ----------------------------------------------------------------------------
+# Set module path in order to use custom CMake modules
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-# --------------------------------------------------------------------
-# Compilation options
-# --------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+# Operating system
+# ----------------------------------------------------------------------------
+# Detect operating system and define SYSTEM macros
+message(STATUS "We are on a ${CMAKE_SYSTEM_NAME} system")
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  set(SYSTEM_DEFINITIONS SYSTEM_LINUX)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+  set(SYSTEM_DEFINITIONS SYSTEM_DARWIN)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "AIX")
+  set(SYSTEM_DEFINITIONS SYSTEM_AIX)
+elseif(CMAKE_SYSTEM_NAME MATCHES "Windows")
+  set(SYSTEM_DEFINITIONS SYSTEM_WINDOWS)
+endif()
 
-# --------------------------------------------------------------------
-# Compulsory (external) libraries
-# --------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+# Apply system-specific definitions to the target
+if(SYSTEM_DEFINITIONS)
+  message(STATUS "System definition: ${SYSTEM_DEFINITIONS}")
+endif()
 
-# --- Eigen (Compulsory)
-find_package(Eigen3 REQUIRED)
+# ----------------------------------------------------------------------------
+# Compiler options
+# ----------------------------------------------------------------------------
+include(${CMAKE_MODULE_PATH}/CompilerOptions.cmake)
 
-# --- Boost (Compulsory)
-# --- TODO Clean boost lib I don't think we need all of them
-find_package(Boost REQUIRED
-  COMPONENTS
-  date_time
-  filesystem
-  program_options
-  system
-  regex
-  timer
-  chrono
-  serialization
+# ----------------------------------------------------------------------------
+# Options
+# ----------------------------------------------------------------------------
+include(${CMAKE_MODULE_PATH}/Options.cmake)
+
+# ----------------------------------------------------------------------------
+# Compulsory libraries
+# ----------------------------------------------------------------------------
+# Eigen https://eigen.tuxfamily.org/index.php?title=Main_Page
+find_package(Eigen3 REQUIRED NO_MODULE)
+
+# ----------------------------------------------------------------------------
+# Boost https://www.boost.org/
+find_package(
+  Boost REQUIRED
+  COMPONENTS date_time
+             filesystem
+             program_options
+             system
+             regex
+             timer
+             chrono
 )
 
-# --- pybind11 (Compulsory)
-find_package(pybind11 REQUIRED)
-
-# --- OpenSMOKE++ (Compulsory)
+# ----------------------------------------------------------------------------
+# OpenSMOKE++ Send an email to alberto.cuoci@polimi.it
 find_package(OpenSMOKEpp REQUIRED)
 
-# --- OpenSMOKE++ Solvers (Compulsory)
+# ----------------------------------------------------------------------------
+# OpenSMOKE++Solvers Send an email to alberto.cuoci@polimi.it
 find_package(OpenSMOKEppSolvers REQUIRED)
 
-# --- OpenBLAS library (Compulsory)
-set (BLA_VENDOR OpenBLAS)
-set (BLA_STATIC ON)
-find_package(BLAS REQUIRED)
+# ----------------------------------------------------------------------------
+# pybind11
+find_package(pybind11 REQUIRED)
+
+# ----------------------------------------------------------------------------
+# Linear Algebra acelleration: MKL or OpenBLAS
+# ----------------------------------------------------------------------------
+set(LINEAR_ALGEBRA_INCLUDE)
+set(LINEAR_ALGEBRA_LIB)
+set(LINEAR_ALGEBRA_LIB_INSTALL)
+if(OPENSMOKE_USE_MKL)
+  message(ERROR "Not implemented yet!")
+endif()
+
+if(OPENSMOKE_USE_OPENBLAS)
+  # For OpenBLAS we are not using the cmake standard defined find blas stuff because it doesnt
+  # provide correctly the include directory so in order to do that we are using the one
+  # automatically generated when building from source the OpenBLAS library usually located in
+  # ".../lib/cmake/openblas"
+  find_package(OpenBLAS REQUIRED)
+  message(STATUS "Found OpenBLAS: version ${OpenBLAS_VERSION}")
+  list(APPEND LINEAR_ALGEBRA_INCLUDE ${OpenBLAS_INCLUDE_DIRS})
+  list(APPEND LINEAR_ALGEBRA_LIB ${OpenBLAS_INCLUDE_DIRS}/../lib/libopenblas.a)
+  list(APPEND LINEAR_ALGEBRA_LIB_INSTALL "")
+endif()
 
 # --------------------------------------------------------------------
 # Subdirectories
 # --------------------------------------------------------------------
-
 add_subdirectory(source)
 
 # --------------------------------------------------------------------
 # Documentation
 # --------------------------------------------------------------------
-
 # TODO
 
 # --------------------------------------------------------------------
 # Testing
 # --------------------------------------------------------------------
-
 # TODO
